@@ -1,5 +1,5 @@
 # SeleniumRP
-Selenium Record and Replay Tools. Record with a Chrome extension and Replay with webdriver.
+Selenium Record and Replay Tools. Record with a Chrome extension and Replay with WebDriver.
 
 ---
 
@@ -17,11 +17,11 @@ This is a utility tool, to help visualize the differences of the screenshots gen
 ---
 
 ##More Info
-Once start to record, user actions will be recorded and treated as one Record/Test. Each test will contains several steps, which you can create with a description a long the way. When you finish, you can export the record out. It will be several JSON files, once called steps.json, which contains all the step names and description, it is the skeleton of the test. And all the step files, with the step name as the file name.
+Once start to record, user actions will be recorded and treated as one Record/Test. Each test will contains several steps, which you can create with a description along the way. When you finish, you can export the record out. It will be several JSON files, once called steps.json, which contains all the step names and description, it is the skeleton of the test. And all the step files, with the step name as the file name.
 
-After you exported all the JSON files, put then in a folder under the data folder of the Runner. Each folder will be treated as an individual test. Runner can run all of these tests in sequential or parallel(configurable). Runner will create all the screenshots as the baseline in the first run. Any screenshot generated after that will be compared with baseline and generate a differ screenshot, if they are different. At the end, Runner will generate a result JSON file and TRX file.
+After you exported all the JSON files, put then in a folder under the data folder of the Runner. Each folder will be treated as an individual test. Runner can run all of these tests in sequential or parallel (configurable). Runner will create all the screenshots as the baseline in the first run. Any screenshot generated after that will be compared with baseline and generate a differ screenshot, if they are different. At the end, Runner will generate a result JSON file and TRX file.
 
-At last you can view the screenshots different using the differe tool.
+At last you can view the screenshots different using the differ tool.
 
 ---
 
