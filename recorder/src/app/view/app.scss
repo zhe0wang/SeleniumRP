@@ -1,0 +1,229 @@
+﻿$font-stack: Helvetica, sans-serif;
+
+body {
+  font: 100% $font-stack;
+}
+
+input[type='checkbox'] {
+    height: 18px;
+    width: 18px;
+    vertical-align: middle;
+}
+
+.i-icon {
+    svg {
+        fill: currentColor;
+    }
+}
+
+.i-hidden {
+    display: none !important;
+}
+
+.i-pager {
+    .i-pager-page-no {        
+        text-align: center;
+        height: 30px;
+        margin: 0 10px;
+        display: inline-block;
+    }
+    button {
+        height: 40px;
+        width: 40px;
+        border-radius: 20px;
+    }
+}
+
+.i-steps {
+    float: left; 
+    width: 100px;
+    padding: 0 5px;
+}
+
+.i-steps-title {
+    margin: 8px 0;
+    font-weight: bold;
+}
+
+.i-steps-item {
+    cursor: pointer;
+    margin: 3px 0;
+    padding: 5px 8px;
+    background-color: coral;
+    border-radius: 3px;
+    color: #ffffff;
+    word-break: break-word;
+
+    &.i-steps-item-selected {
+        background-color: gold;
+        color: black;
+    }
+}
+
+.i-steps-item-remove {
+    cursor: pointer;
+    display: inline;
+    padding-right: 8px;
+}
+
+.i-actions {
+    margin-bottom: 20px;
+    button {
+        margin: 5px 8px;
+        width: 100px;
+        height: 30px;
+        vertical-align: middle;
+    }
+    button.i-action-setting {
+        width: 45px;
+        float: right;
+    }
+    form {
+        margin-left: 25px;
+        display: inline;
+        input {
+            height: 30px;
+        }
+    }
+}
+
+.i-events {
+    margin-left: 120px;
+    min-width: 500px;
+    max-width: calc(100% - 125px); 
+    padding: 5px;
+}
+
+.i-event-table-wrapper {   
+    height: calc(100% - 150px);
+    overflow: auto;
+}
+
+.i-event-filter-table {
+    display: table;
+    height: 35px;
+}
+
+.i-event-filter-column {
+    display: table-cell;
+}
+
+.i-event-show-detail {
+    height: 18px;
+    width: 18px;
+    vertical-align: middle;
+    margin-right: 20px;
+}
+
+.i-event-filter-input {
+    height: 25px;
+    width: 250px;
+}
+
+.i-event-table {
+    display: table;    
+    border-collapse: separate;
+    border-spacing: 10px;
+}
+
+.i-event-row {
+    display: table-row;
+}
+
+.i-event-item-remove {
+    cursor: pointer;
+    display: table-cell;
+    color: lightslategray;
+    width: 30px;
+}
+
+.i-event-selected-step .i-event-item {
+    background-color: gold;
+    color: black;
+}
+
+.i-event-item {
+    padding: 5px 8px;
+    background-color: forestgreen;
+    border-radius: 3px;
+    color: #ffffff;
+    display: table-cell;
+    word-break: break-word;
+}
+
+.i-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(169, 169, 169, 0.7);
+}
+
+.i-dialog-content {
+    width: 70%;
+    height: 80%;
+    margin: 5% auto;
+    background-color: white;
+    padding: 12px;
+}
+
+.i-dialog-header {
+    height: 40px;
+}
+
+.i-dialog-title {
+    font-size: 16px;
+    font-weight: bold;
+    float: left;
+}
+
+.i-dialog-close {
+    float: right;
+    cursor: pointer;
+}
+
+.i-dialog-table {
+    display: table;
+    height: 35px;
+}
+
+.i-dialog-row {
+    display: table-row;
+}
+
+.i-dialog-column {
+    display: table-cell;
+    padding: 5px 8px;
+    vertical-align: top;
+    input[type='text'] {
+        width: 371px;
+        height: 30px;
+    }
+}
+
+.i-dialog-label {
+    width: 160px;
+}
+
+.i-dialog-footer {
+    height: 50px;
+    text-align: right;
+
+    button {
+        margin-left: 8px;
+        height: 30px;
+        width: 80px;
+    }
+}
+
+.i-dialog-content-center {
+    height: calc(100% - 90px);
+    overflow: auto;
+}
+
+.i-screenshot-wrapper {
+    display: inline-block;
+    border: 1px solid #cccccc;
+    line-height: 40px;
+}

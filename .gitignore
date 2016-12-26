@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore
+################################################################################
+
+/recorder/.vscode
+/recorder/node_modules
+/runner/.vscode
+/runner/node_modules
+/differ/.vscode
+/differ/node_modules
+/runner/data
+/runner/screens
+
