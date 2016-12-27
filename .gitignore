@@ -10,4 +10,11 @@
 /differ/node_modules
 /runner/data
 /runner/screens
+/runner/result.json
+/runner/result.trx
+/runner/dest/data
+/runner/dest/screens
+/runner/dest/result.json
+/runner/dest/result.trx
+
 

@@ -194,13 +194,10 @@ async function doCheckError() {
 async function doSetSize(action) {
 	var sizes = action.sizes,
 		width = Config.windowSize.width || sizes.width,
-		height = Config.windowSize.height || sizes.height,
-		windowName = 'runnderWindow' + Date.now();
+		height = Config.windowSize.height || sizes.height;
 
 	log(`set size to: w-${width}, h-${height}`, null, errorCount);
-	driver.executeScript(`window.open('','${windowName}','width=${width},height=${height}')`);
-	driver.close();
-	await driver.switchTo().window(windowName);
+	await driver.manage().window().setSize(width, height);
 }
 
 async function doWait(action, cb) {
