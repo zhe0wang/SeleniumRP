@@ -13244,7 +13244,72 @@ module.exports = require("os");
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-'use strict';var _promise=__webpack_require__(54),_promise2=_interopRequireDefault(_promise);function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}var fs=__webpack_require__(1),path=__webpack_require__(0);function getFiles(c,d){var f=[],g=fs.readdirSync(c)||[];for(var h in g){var j=c+(c.endsWith('/')?'':'/')+g[h];fs.statSync(j).isDirectory()?(d&&f.push(j),f=f.concat(getFiles(j,d))):!d&&f.push(j)}return f}function fileExists(c){try{return fs.statSync(c),!0}catch(d){return!1}}function ensureFile(c,d,f){try{fs.statSync(c)}catch(g){fs.writeFileSync(c,d,f)}}function isOnPath(c,d){return c.startsWith(d)||!path.relative(c,d)}function sleep(){var c=0<arguments.length&&void 0!==arguments[0]?arguments[0]:0;return new _promise2.default(function(d){return setTimeout(d,c)})}var Utility={getFiles:getFiles,fileExists:fileExists,ensureFile:ensureFile,sleep:sleep,isOnPath:isOnPath};module.exports=Utility;
+'use strict';
+
+var _promise = __webpack_require__(54);
+
+var _promise2 = _interopRequireDefault(_promise);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fs = __webpack_require__(1),
+    path = __webpack_require__(0);
+
+function getFiles(dir, forFolder) {
+    var all = [],
+        files = fs.readdirSync(dir) || [];
+    for (var i in files) {
+        var name = dir + (dir.endsWith('/') ? '' : '/') + files[i];
+        if (fs.statSync(name).isDirectory()) {
+            forFolder && all.push(name);
+            all = all.concat(getFiles(name, forFolder));
+        } else {
+            !forFolder && all.push(name);
+        }
+    }
+    return all;
+}
+
+function fileExists(path) {
+    try {
+        fs.statSync(path);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function ensureFile(path, data, encoding) {
+    var state;
+
+    try {
+        fs.statSync(path);
+    } catch (e) {
+        fs.writeFileSync(path, data, encoding);
+    }
+}
+
+function isOnPath(a, b) {
+    return a.startsWith(b) || !path.relative(a, b);
+}
+
+function sleep() {
+    var ms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+    return new _promise2.default(function (r) {
+        return setTimeout(r, ms);
+    });
+}
+
+var Utility = {
+    getFiles: getFiles,
+    fileExists: fileExists,
+    ensureFile: ensureFile,
+    sleep: sleep,
+    isOnPath: isOnPath
+};
+
+module.exports = Utility;
 
 /***/ },
 /* 76 */
@@ -23498,7 +23563,1284 @@ module.exports = require("https");
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-'use strict';var _keys=__webpack_require__(171),_keys2=_interopRequireDefault(_keys),_promise=__webpack_require__(54),_promise2=_interopRequireDefault(_promise),_regenerator=__webpack_require__(77),_regenerator2=_interopRequireDefault(_regenerator),_asyncToGenerator2=__webpack_require__(76),_asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2),finish=function(){var _ref=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(){return _regenerator2.default.wrap(function _callee$(_context){for(;1;)switch(_context.prev=_context.next){case 0:if(_context.t0=Config.closeOnFinish&&driver,!_context.t0){_context.next=4;break}return _context.next=4,driver.quit();case 4:isFinished=!0;case 5:case'end':return _context.stop();}},_callee,this)}));return function finish(){return _ref.apply(this,arguments)}}(),runTest=function(){var _ref2=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(a,b,c){var d,e,f;return _regenerator2.default.wrap(function _callee2$(_context2){for(;1;)switch(_context2.prev=_context2.next){case 0:if(f=b&&b.length,f){_context2.next=3;break}return _context2.abrupt('return',void finish());case 3:return currentUrl=null,isRunning=!0,currentTestResult=!0,currentTestName=a,channel=c,_context2.next=10,initDriver();case 10:logResult('Start',null,!0),e=0;case 12:if(_context2.t0=e<f,!_context2.t0){_context2.next=24;break}return d=b[e],currentStep=d,currentStepResult=!0,log(''),log('--- step: '+currentStep.name+' --- ','highlight'),logResult('Start'),_context2.next=22,runStepActions(d);case 22:logResult('Finish',currentStepResult),_context2.t0=!(2<=actionErrorCount);case 24:if(!_context2.t0){_context2.next=29;break};case 26:e+=1,_context2.next=12;break;case 29:finish(),logResult('Finish',currentTestResult,!0),isRunning=!1;case 30:case'end':return _context2.stop();}},_callee2,this)}));return function runTest(_x,_x2,_x3){return _ref2.apply(this,arguments)}}(),initDriver=function(){var _ref3=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(){var b,a;return _regenerator2.default.wrap(function _callee3$(_context3){for(;1;)switch(_context3.prev=_context3.next){case 0:return a=new webdriver.Builder().forBrowser(Config.brower),Config.serverUrl&&a.usingServer(Config.serverUrl),isIE&&(b=webdriver.Capabilities.ie(),b.set('nativeEvents',!1),a.withCapabilities(b)),driver=a.build(),driver.manage().timeouts().setScriptTimeout(15000),_context3.next=7,driver.manage().window().setSize(Config.windowSize.width||800,Config.windowSize.height||600);case 7:case'end':return _context3.stop();}},_callee3,this)}));return function initDriver(){return _ref3.apply(this,arguments)}}(),runStepActions=function(){var _ref4=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(a){var c,b,d,e;return _regenerator2.default.wrap(function _callee4$(_context4){for(;1;)switch(_context4.prev=_context4.next){case 0:b=a.actions,d=null,e=b.length,c=0;case 2:if(!(c<e)){_context4.next=24;break}return currentActionIdx=c,clearErrorCount(),_context4.next=7,Utility.sleep(Config.wait.all);case 7:return _context4.next=9,doAction(b[c]);case 9:return _context4.next=11,doCheckError();case 11:if(1!=actionErrorCount||null!=d){_context4.next=15;break}d=c,_context4.next=21;break;case 15:if(!(1<=actionErrorCount&&c-d>actionErrorCount)){_context4.next=19;break}d=null,actionErrorCount=0,_context4.next=21;break;case 19:if(!(2<=actionErrorCount)){_context4.next=21;break}return _context4.abrupt('break',24);case 21:c+=1,_context4.next=2;break;case 24:case'end':return _context4.stop();}},_callee4,this)}));return function runStepActions(_x4){return _ref4.apply(this,arguments)}}(),doAction=function(){var _ref5=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(a){var b;return _regenerator2.default.wrap(function _callee5$(_context5){for(;1;)switch(_context5.prev=_context5.next){case 0:if(b=a&&actionMap[a.type],!b){_context5.next=24;break}return _context5.prev=2,_context5.next=5,Utility.sleep(Config.wait[a.type]);case 5:return _context5.next=7,b(a);case 7:_context5.next=24;break;case 9:if(_context5.prev=9,_context5.t0=_context5['catch'](2),!(errorCount>=Config.error.retryCount)){_context5.next=17;break}return log(_context5.t0,'error'),updateResult('Error occured',!1),_context5.next=16,createErrorScreenshot(a);case 16:return _context5.abrupt('return',void(actionErrorCount+=1));case 17:return errorCount+=1,errorWait+=defaultErrorWait,log('--- retry: '+errorCount+' ---','warn',!0),_context5.next=22,Utility.sleep(errorWait);case 22:return _context5.next=24,doAction(a);case 24:case'end':return _context5.stop();}},_callee5,this,[[2,9]])}));return function doAction(_x5){return _ref5.apply(this,arguments)}}(),doCheckError=function(){var _ref6=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee6(){var b,c,d,e,a;return _regenerator2.default.wrap(function _callee6$(_context6){for(;1;)switch(_context6.prev=_context6.next){case 0:if(a='browser',_context6.t0=isIE||!Config.browerLogLevel,_context6.t0){_context6.next=16;break}return _context6.next=5,driver.manage().logs();case 5:return b=_context6.sent,_context6.next=8,b.getAvailableLogTypes();case 8:if(c=_context6.sent,_context6.t1=-1<c.indexOf(a),!_context6.t1){_context6.next=16;break}return _context6.next=13,b.get(a);case 13:d=_context6.sent,e=d.filter(function(f){return f.level.value>=Config.browerLogLevel}),e.forEach(function(f){900<f.level.value?(log('BROWER: '+f.message,'error'),updateResult('Error occured: BROWER: '+f.message,!1)):800<f.level.value&&log('BROWER: '+f.message,'warn')});case 16:case'end':return _context6.stop();}},_callee6,this)}));return function doCheckError(){return _ref6.apply(this,arguments)}}(),doSetSize=function(){var _ref7=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee7(a){var b,c,d;return _regenerator2.default.wrap(function _callee7$(_context7){for(;1;)switch(_context7.prev=_context7.next){case 0:return b=a.sizes,c=Config.windowSize.width||b.width,d=Config.windowSize.height||b.height,log('set size to: w-'+c+', h-'+d,null,errorCount),_context7.next=4,driver.manage().window().setSize(c,d);case 4:case'end':return _context7.stop();}},_callee7,this)}));return function doSetSize(_x6){return _ref7.apply(this,arguments)}}(),doWait=function(){var _ref8=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee8(a,b){return _regenerator2.default.wrap(function _callee8$(_context8){for(;1;)switch(_context8.prev=_context8.next){case 0:return log('wait for: '+a.value+' ms',null,errorCount),_context8.next=3,Utility.sleep(a.value);case 3:case'end':return _context8.stop();}},_callee8,this)}));return function doWait(_x7,_x8){return _ref8.apply(this,arguments)}}(),goToUrl=function(){var _ref9=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee9(a){return _regenerator2.default.wrap(function _callee9$(_context9){for(;1;)switch(_context9.prev=_context9.next){case 0:if(_context9.t0=currentUrl,_context9.t0){_context9.next=6;break}return currentUrl=Config.startUrl||a.url,log(currentUrl,null,errorCount),_context9.next=6,driver.get(a.url);case 6:case'end':return _context9.stop();}},_callee9,this)}));return function goToUrl(_x9){return _ref9.apply(this,arguments)}}(),doClick=function(){var _ref10=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee10(a){return _regenerator2.default.wrap(function _callee10$(_context10){for(;1;)switch(_context10.prev=_context10.next){case 0:return _context10.next=2,doClickAction(a);case 2:case'end':return _context10.stop();}},_callee10,this)}));return function doClick(_x10){return _ref10.apply(this,arguments)}}(),doDblClick=function(){var _ref11=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee11(a){return _regenerator2.default.wrap(function _callee11$(_context11){for(;1;)switch(_context11.prev=_context11.next){case 0:return _context11.next=2,doClickAction(a,!0);case 2:case'end':return _context11.stop();}},_callee11,this)}));return function doDblClick(_x11){return _ref11.apply(this,arguments)}}(),doClickAction=function(){var _ref12=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee12(a,b){var h,j,c,d,e,f,g;return _regenerator2.default.wrap(function _callee12$(_context12){for(;1;)switch(_context12.prev=_context12.next){case 0:return c=getTargetPosition(a.target),d=a.clientX,e=a.clientY,f=d-c.x||0,g=e-c.y||0,log((b?'double click':'click')+':  '+d+', '+e,null,errorCount),_context12.next=4,getEl(a.target);case 4:return h=_context12.sent,j=driver.actions().mouseMove(h,{x:f,y:g}),b?j.doubleClick():j.click(),_context12.next=9,j.perform();case 9:case'end':return _context12.stop();}},_callee12,this)}));return function doClickAction(_x12,_x13){return _ref12.apply(this,arguments)}}(),doContextMenu=function(){var _ref13=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee13(a){var d,b,c;return _regenerator2.default.wrap(function _callee13$(_context13){for(;1;)switch(_context13.prev=_context13.next){case 0:return b=a.clientX,c=a.clientY,log('contextmenu:  '+b+', '+c,null,errorCount),_context13.next=4,getEl(a.target);case 4:return d=_context13.sent,_context13.next=7,driver.actions().click(d,2).perform();case 7:case'end':return _context13.stop();}},_callee13,this)}));return function doContextMenu(_x14){return _ref13.apply(this,arguments)}}(),doKey=function(){var _ref14=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee14(a,b){var e,c,d;return _regenerator2.default.wrap(function _callee14$(_context14){for(;1;)switch(_context14.prev=_context14.next){case 0:return c=a.keyCode,d=KeyMap[a.keyCode]||String.fromCharCode(a.keyCode),log('key:  '+d+' : '+c,null,errorCount),_context14.next=4,getEl(a.target);case 4:return e=_context14.sent,_context14.next=7,e.sendKeys(d);case 7:case'end':return _context14.stop();}},_callee14,this)}));return function doKey(_x15,_x16){return _ref14.apply(this,arguments)}}(),doKeyUp=function(){var _ref15=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee15(a,b){var d,c;return _regenerator2.default.wrap(function _callee15$(_context15){for(;1;)switch(_context15.prev=_context15.next){case 0:if(c=a.target&&a.target.value,null!==c&&void 0!==c){_context15.next=7;break}return _context15.next=4,doKey(a);case 4:_context15.t0=void _context15.sent,_context15.next=14;break;case 7:return log('set value:  '+c,null,errorCount),_context15.next=10,getEl(a.target);case 10:return d=_context15.sent,_context15.next=13,driver.executeScript('arguments[0].value=arguments[1];',d,c);case 13:_context15.t0=void _context15.sent;case 14:return _context15.abrupt('return',_context15.t0);case 15:case'end':return _context15.stop();}},_callee15,this)}));return function doKeyUp(_x17,_x18){return _ref15.apply(this,arguments)}}(),doScroll=function(){var _ref16=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee16(a){var b;return _regenerator2.default.wrap(function _callee16$(_context16){for(;1;)switch(_context16.prev=_context16.next){case 0:return log('scroll: '+a.scroll.left+' '+a.scroll.top,null,errorCount),_context16.next=3,getEl(a.target);case 3:return b=_context16.sent,_context16.next=6,scrollByElement(b,a.scroll);case 6:case'end':return _context16.stop();}},_callee16,this)}));return function doScroll(_x19){return _ref16.apply(this,arguments)}}(),createErrorScreenshot=function(){var _ref17=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee17(a){var e,b,c,d;return _regenerator2.default.wrap(function _callee17$(_context17){for(;1;)switch(_context17.prev=_context17.next){case 0:return b=currentActionIdx+'-'+a.id+'-'+(a.type||'')+'.png',c=Config.screenErrorFolder+'/'+currentTestName+'/'+currentStep.name+'/',d=''+c+b,_context17.next=3,resetMouse();case 3:return _context17.next=5,getScreenshotData();case 5:e=_context17.sent,e=highlightTarget(a,e,[255,0,0]),fse.ensureDirSync(c),fs.writeFileSync(d,e,'base64');case 9:case'end':return _context17.stop();}},_callee17,this)}));return function createErrorScreenshot(_x20){return _ref17.apply(this,arguments)}}(),doScreenShot=function(){var _ref18=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee18(a){var b;return _regenerator2.default.wrap(function _callee18$(_context18){for(;1;)switch(_context18.prev=_context18.next){case 0:return _context18.next=2,resetMouse();case 2:return _context18.next=4,getScreenshotData(a);case 4:return b=_context18.sent,_context18.next=7,compareImages(a,b);case 7:case'end':return _context18.stop();}},_callee18,this)}));return function doScreenShot(_x21){return _ref18.apply(this,arguments)}}(),getScreenshotData=function(){var _ref19=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee19(a){var d,e,b,c;return _regenerator2.default.wrap(function _callee19$(_context19){for(;1;)switch(_context19.prev=_context19.next){case 0:return _context19.next=2,driver.takeScreenshot();case 2:return b=_context19.sent,c=b.replace(/^data:image\/png;base64,/,''),_context19.abrupt('return',(a&&0<=a.x&&0<=a.y&&a.width&&a.height&&(d=PNG.sync.read(new Buffer(c,'base64')),e=new PNG({width:a.width,height:a.height}),PNG.bitblt(d,e,a.x,a.y,a.width,a.height,0,0),c=PNG.sync.write(e).toString('base64')),c));case 5:case'end':return _context19.stop();}},_callee19,this)}));return function getScreenshotData(_x22){return _ref19.apply(this,arguments)}}(),doVerify=function(){var _ref20=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee20(a){var d,b,c;return _regenerator2.default.wrap(function _callee20$(_context20){for(;1;)switch(_context20.prev=_context20.next){case 0:return b=(a.target||{}).textContent||a.id,c='verify - "'+b+'"',log(c,null,errorCount),_context20.next=4,getEl(a.target);case 4:d=_context20.sent,log(c,d?'success':'error'),updateResult(c,d);case 7:case'end':return _context20.stop();}},_callee20,this)}));return function doVerify(_x23){return _ref20.apply(this,arguments)}}(),domClick=function(){var _ref21=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee21(a,b){return _regenerator2.default.wrap(function _callee21$(_context21){for(;1;)switch(_context21.prev=_context21.next){case 0:return _context21.next=2,driver.executeScript(function(){var c=arguments[arguments.length-1],d=window.document.elementFromPoint(c[0],c[1]),e=window.document.createEvent('Event');e.initEvent('click',!0,!0),d.dispatchEvent(e)},[a,b]);case 2:case'end':return _context21.stop();}},_callee21,this)}));return function domClick(_x24,_x25){return _ref21.apply(this,arguments)}}(),resetMouse=function(){var _ref22=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee22(){return _regenerator2.default.wrap(function _callee22$(_context22){for(;1;)switch(_context22.prev=_context22.next){case 0:return log('reset mouse'),_context22.next=3,driver.actions().mouseMove({x:-100000,y:-100000}).click().perform();case 3:case'end':return _context22.stop();}},_callee22,this)}));return function resetMouse(){return _ref22.apply(this,arguments)}}(),getEl=function(){var _ref23=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee23(a){var b,c,d,e;return _regenerator2.default.wrap(function _callee23$(_context23){for(;1;)switch(_context23.prev=_context23.next){case 0:return b=getTargetPosition(a),c=b.x+(b.width||0)/2,d=b.y+(b.height||0)/2,e=a.classList&&(0,_keys2.default)(a.classList).map(function(f){return a.classList[f]}).join(' '),_context23.next=3,driver.executeAsyncScript(findElementScriptFunc,[a.cssPath,c,d,a.tagName,e,a.textContent,errorCount]);case 3:return _context23.abrupt('return',_context23.sent);case 4:case'end':return _context23.stop();}},_callee23,this)}));return function getEl(_x26){return _ref23.apply(this,arguments)}}(),scrollByElement=function(){var _ref24=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee24(a,b){return _regenerator2.default.wrap(function _callee24$(_context24){for(;1;)switch(_context24.prev=_context24.next){case 0:return _context24.next=2,driver.executeScript(function(){var c=arguments[arguments.length-1],d=c[0],e=c[1];e.left&&(d.scrollLeft=e.left),e.top&&(d.scrollTop=e.top)},[a,b]);case 2:case'end':return _context24.stop();}},_callee24,this)}));return function scrollByElement(_x27,_x28){return _ref24.apply(this,arguments)}}();function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}var driver,channel,currentUrl,currentTestName,currentStep,fs=__webpack_require__(1),fse=__webpack_require__(78),resemble=__webpack_require__(286),webdriver=__webpack_require__(306),PNG=__webpack_require__(296).PNG,Config=__webpack_require__(79),KeyMap=__webpack_require__(170),Utility=__webpack_require__(75),actionMap={url:goToUrl,click:doClick,dblclick:doDblClick,keydown:doKey,keypress:doKey,keyup:doKeyUp,scroll:doScroll,contextmenu:doContextMenu,screenshot:doScreenShot,verify:doVerify,wait:doWait,setsize:doSetSize},currentTestResult=!0,currentStepResult=!0,currentActionIdx=0,isRunning=!1,isFinished=!1,isIE='internet explorer'===Config.brower,defaultErrorWait=Config.error&&Config.error.wait||300,retryCount=Config.error&&Config.error.retryCount||3,errorCount=0,errorWait=0,actionErrorCount=0;function clearErrorCount(){errorCount=0,errorWait=Config.error&&Config.error.wait||300}function highlightTarget(a,b,c){var d,f,g,h,j,k,e=a&&a.target&&a.target.position,m=e&&0<=e.x&&0<=e.y&&e.width&&e.height;if(!m)return b;d=PNG.sync.read(new Buffer(b,'base64')),f=Math.min(e.y+e.height,d.height),g=Math.min(e.x+e.width,d.width);for(var j=e.y;j<f;j+=1)for(var h=e.x;h<g;h+=1)j>e.y&&j<f-1&&h>e.x&&h<g-1||(k=d.width*j+h<<2,d.data[k]=c[0],d.data[k+1]=c[1],d.data[k+2]=c[2]);return PNG.sync.write(d).toString('base64')}function compareImages(a,b){var o,c=currentStep.name,d=''+(a.screenIndex||a.id),e=d+'.png',f=Config.screenBaseFolder+'/'+currentTestName+'/'+c+'/',g=Config.screenCurrentFolder+'/'+currentTestName+'/'+c+'/',h=Config.screenDiffFolder+'/'+currentTestName+'/'+c+'/',j=''+f+e,k=''+g+e,m=''+h+e,n='screenshot "'+c+' - '+d+'"';return log(n,null,errorCount),fse.ensureDirSync(f),fse.ensureDirSync(g),fse.ensureDirSync(h),Utility.ensureFile(j,b,'base64'),fs.writeFileSync(k,b,'base64'),new _promise2.default(function(p,q){resemble(j).compareTo(k).ignoreColors().onComplete(function(r){var s=0.01>=+r.misMatchPercentage;log(n,s?'success':'error'),updateResult(n,s),s?p():(o=fs.createWriteStream(m),o.on('finish',function(){p()}),r.getDiffImage().pack().pipe(o))})})}function findElementScriptFunc(){var e,a=arguments[arguments.length-2],b=arguments[arguments.length-1],c=0,d=500,f=a[0],g=a[1]-window.pageXOffset,h=a[2]-window.pageYOffset,j=a[3],k=a[4],m=a[5],n=a[6],o=!1;hasShareClass=function hasShareClass(p,q){var r={};return p.split(' ').forEach(function(s){r[s]=!0}),q.split(' ').some(function(s){return r[s]})},hasSameTextContent=function hasSameTextContent(p){return!m||!((p.textContent&&p.textContent.replace(/\r|\n/g,'').substring(0,100))!==m.replace(/\r|\n/g,'').substring(0,100))},compareFun=function compareFun(p){var q,r,s;return p&&p.tagName===j&&(r=k&&k.trim(),s=p.className&&(p.className.baseVal&&p.className.baseVal.trim()||p.className.trim&&p.className.trim()),q=!r||s==r||hasShareClass(s,r),!!q&&hasSameTextContent(p))},getElsFromPosition=function getElsFromPosition(p,q){return document.elementsFromPoint&&document.elementsFromPoint(p,q)||document.msElementsFromPoint&&document.msElementsFromPoint(p,q)||[]},getElement=function(_getElement){function getElement(){return _getElement.apply(this,arguments)}return getElement.toString=function(){return _getElement.toString()},getElement}(function(){return 30000<=c?void b(null):void setTimeout(function(){var p,q,r,s,t,u;if(f&&f.length){if(s=document.querySelectorAll(f),r=Array.prototype.filter.call(s,function(v){return hasSameTextContent(v)}),r&&1===r.length)return void b(r[0]);if(null!=g&&null!=h)for(q=getElsFromPosition(g,h),q&&q.length&&(q=Array.prototype.filter.call(q,function(v){return v.tagName===j})),(t=0,u=s.length);t<u;t+=1)if(p=s[t],-1<q.indexOf(p))return console.log('cssPath + xy'),void b(p)}if(null!=g&&null!=h){if(e=document.elementFromPoint(g,h),compareFun(e))return void b(e);for(s=q||getElsFromPosition(g,h),t=0,u=s.length;t<u;t+=1)if(p=s[t],compareFun(p))return void b(p)}o||(console.log([a,s]),o=!0),c+=d,getElement()},0<c?d:0)}),getElement()};function getTargetPosition(a){return a.position||{x:0,y:0}}function updateResult(a,b){logResult(a,b),b||(currentStepResult=!1,currentTestResult=!1)}function log(a,b,c){channel&&channel({testName:currentTestName,stepName:currentStep&&currentStep.name,timeStamp:new Date().toISOString(),type:b||'log',content:a,isForce:c})}function logResult(a,b,c){var d={testName:currentTestName,timeStamp:new Date().toISOString(),type:'result',content:a,result:b};!c&&currentStep&&currentStep.name&&(d.stepName=currentStep.name),channel&&channel(d)}var StepRunner={runTest:runTest};module.exports=StepRunner;
+'use strict';
+
+var _keys = __webpack_require__(171);
+
+var _keys2 = _interopRequireDefault(_keys);
+
+var _promise = __webpack_require__(54);
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _regenerator = __webpack_require__(77);
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = __webpack_require__(76);
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var finish = function () {
+	var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+		return _regenerator2.default.wrap(function _callee$(_context) {
+			while (1) {
+				switch (_context.prev = _context.next) {
+					case 0:
+						if (!(Config.closeOnFinish && driver)) {
+							_context.next = 3;
+							break;
+						}
+
+						_context.next = 3;
+						return driver.quit();
+
+					case 3:
+
+						isFinished = true;
+
+					case 4:
+					case 'end':
+						return _context.stop();
+				}
+			}
+		}, _callee, this);
+	}));
+
+	return function finish() {
+		return _ref.apply(this, arguments);
+	};
+}();
+
+var runTest = function () {
+	var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(testName, steps, testChannel) {
+		var step, i, len;
+		return _regenerator2.default.wrap(function _callee2$(_context2) {
+			while (1) {
+				switch (_context2.prev = _context2.next) {
+					case 0:
+						len = steps && steps.length;
+
+						if (len) {
+							_context2.next = 4;
+							break;
+						}
+
+						finish();
+						return _context2.abrupt('return');
+
+					case 4:
+
+						currentUrl = null;
+						isRunning = true;
+						currentTestResult = true;
+						currentTestName = testName;
+						channel = testChannel;
+						_context2.next = 11;
+						return initDriver();
+
+					case 11:
+
+						logResult('Start', null, true);
+						i = 0;
+
+					case 13:
+						if (!(i < len)) {
+							_context2.next = 28;
+							break;
+						}
+
+						step = steps[i];
+						currentStep = step;
+						currentStepResult = true;
+
+						log('');
+						log('--- step: ' + currentStep.name + ' --- ', 'highlight');
+						logResult('Start');
+						_context2.next = 22;
+						return runStepActions(step);
+
+					case 22:
+						logResult('Finish', currentStepResult);
+
+						if (!(actionErrorCount >= 2)) {
+							_context2.next = 25;
+							break;
+						}
+
+						return _context2.abrupt('break', 28);
+
+					case 25:
+						i += 1;
+						_context2.next = 13;
+						break;
+
+					case 28:
+
+						finish();
+						logResult('Finish', currentTestResult, true);
+						isRunning = false;
+
+					case 31:
+					case 'end':
+						return _context2.stop();
+				}
+			}
+		}, _callee2, this);
+	}));
+
+	return function runTest(_x, _x2, _x3) {
+		return _ref2.apply(this, arguments);
+	};
+}();
+
+var initDriver = function () {
+	var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3() {
+		var builder, capabilities, width, height;
+		return _regenerator2.default.wrap(function _callee3$(_context3) {
+			while (1) {
+				switch (_context3.prev = _context3.next) {
+					case 0:
+						builder = new webdriver.Builder().forBrowser(Config.brower), width = Config.windowSize.width || 800, height = Config.windowSize.height || 600;
+
+
+						if (Config.serverUrl) {
+							builder.usingServer(Config.serverUrl);
+						}
+
+						if (isIE) {
+							capabilities = webdriver.Capabilities.ie();
+							capabilities.set('nativeEvents', false);
+							// capabilities.set('ie.forceCreateProcessApi', true);
+							// capabilities.set('ie.browserCommandLineSwitches', '-private');
+
+							builder.withCapabilities(capabilities);
+						}
+
+						driver = builder.build();
+
+						_context3.next = 6;
+						return updateBrowserMargin();
+
+					case 6:
+						driver.manage().timeouts().setScriptTimeout(15000);
+						_context3.next = 9;
+						return driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
+
+					case 9:
+					case 'end':
+						return _context3.stop();
+				}
+			}
+		}, _callee3, this);
+	}));
+
+	return function initDriver() {
+		return _ref3.apply(this, arguments);
+	};
+}();
+
+var updateBrowserMargin = function () {
+	var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4() {
+		var margins;
+		return _regenerator2.default.wrap(function _callee4$(_context4) {
+			while (1) {
+				switch (_context4.prev = _context4.next) {
+					case 0:
+						_context4.next = 2;
+						return driver.executeScript('return [window.outerWidth-window.innerWidth, window.outerHeight-window.innerHeight];');
+
+					case 2:
+						margins = _context4.sent;
+
+						browserMargin = {
+							x: margins[0],
+							y: margins[1]
+						};
+
+					case 4:
+					case 'end':
+						return _context4.stop();
+				}
+			}
+		}, _callee4, this);
+	}));
+
+	return function updateBrowserMargin() {
+		return _ref4.apply(this, arguments);
+	};
+}();
+
+var runStepActions = function () {
+	var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(step) {
+		var actions, i, errorStartIdx, len;
+		return _regenerator2.default.wrap(function _callee5$(_context5) {
+			while (1) {
+				switch (_context5.prev = _context5.next) {
+					case 0:
+						actions = step.actions, errorStartIdx = null, len = actions.length;
+						i = 0;
+
+					case 2:
+						if (!(i < len)) {
+							_context5.next = 25;
+							break;
+						}
+
+						currentActionIdx = i;
+						clearErrorCount();
+						_context5.next = 7;
+						return Utility.sleep(Config.wait.all);
+
+					case 7:
+						_context5.next = 9;
+						return doAction(actions[i]);
+
+					case 9:
+						_context5.next = 11;
+						return doCheckError();
+
+					case 11:
+						if (!(actionErrorCount === 1 && errorStartIdx == null)) {
+							_context5.next = 15;
+							break;
+						}
+
+						errorStartIdx = i;
+						_context5.next = 22;
+						break;
+
+					case 15:
+						if (!(actionErrorCount >= 1 && i - errorStartIdx > actionErrorCount)) {
+							_context5.next = 20;
+							break;
+						}
+
+						errorStartIdx = null;
+						actionErrorCount = 0;
+						_context5.next = 22;
+						break;
+
+					case 20:
+						if (!(actionErrorCount >= 2)) {
+							_context5.next = 22;
+							break;
+						}
+
+						return _context5.abrupt('break', 25);
+
+					case 22:
+						i += 1;
+						_context5.next = 2;
+						break;
+
+					case 25:
+					case 'end':
+						return _context5.stop();
+				}
+			}
+		}, _callee5, this);
+	}));
+
+	return function runStepActions(_x4) {
+		return _ref5.apply(this, arguments);
+	};
+}();
+
+var doAction = function () {
+	var _ref6 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee6(action) {
+		var clientAction, actionWait;
+		return _regenerator2.default.wrap(function _callee6$(_context6) {
+			while (1) {
+				switch (_context6.prev = _context6.next) {
+					case 0:
+						clientAction = action && actionMap[action.type];
+
+						if (clientAction) {
+							_context6.next = 3;
+							break;
+						}
+
+						return _context6.abrupt('return');
+
+					case 3:
+						_context6.prev = 3;
+						_context6.next = 6;
+						return Utility.sleep(Config.wait[action.type]);
+
+					case 6:
+						_context6.next = 8;
+						return clientAction(action);
+
+					case 8:
+						_context6.next = 26;
+						break;
+
+					case 10:
+						_context6.prev = 10;
+						_context6.t0 = _context6['catch'](3);
+
+						if (!(errorCount >= Config.error.retryCount)) {
+							_context6.next = 19;
+							break;
+						}
+
+						log(_context6.t0, 'error');
+						updateResult('Error occured', false);
+						_context6.next = 17;
+						return createErrorScreenshot(action);
+
+					case 17:
+						actionErrorCount += 1;
+						return _context6.abrupt('return');
+
+					case 19:
+
+						errorCount += 1;
+						errorWait += defaultErrorWait;
+						log('--- retry: ' + errorCount + ' ---', 'warn', true);
+
+						_context6.next = 24;
+						return Utility.sleep(errorWait);
+
+					case 24:
+						_context6.next = 26;
+						return doAction(action);
+
+					case 26:
+					case 'end':
+						return _context6.stop();
+				}
+			}
+		}, _callee6, this, [[3, 10]]);
+	}));
+
+	return function doAction(_x5) {
+		return _ref6.apply(this, arguments);
+	};
+}();
+
+var doCheckError = function () {
+	var _ref7 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee7() {
+		var logType, driverLogs, types, logs, filteredLogs;
+		return _regenerator2.default.wrap(function _callee7$(_context7) {
+			while (1) {
+				switch (_context7.prev = _context7.next) {
+					case 0:
+						logType = 'browser';
+
+						if (!(isIE || !Config.browerLogLevel)) {
+							_context7.next = 3;
+							break;
+						}
+
+						return _context7.abrupt('return');
+
+					case 3:
+						_context7.next = 5;
+						return driver.manage().logs();
+
+					case 5:
+						driverLogs = _context7.sent;
+						_context7.next = 8;
+						return driverLogs.getAvailableLogTypes();
+
+					case 8:
+						types = _context7.sent;
+
+						if (!(types.indexOf(logType) > -1)) {
+							_context7.next = 15;
+							break;
+						}
+
+						_context7.next = 12;
+						return driverLogs.get(logType);
+
+					case 12:
+						logs = _context7.sent;
+
+						filteredLogs = logs.filter(function (l) {
+							return l.level.value >= Config.browerLogLevel;
+						});
+						filteredLogs.forEach(function (filterLog) {
+							if (filterLog.level.value > 900) {
+								log('BROWER: ' + filterLog.message, 'error');
+								updateResult('Error occured: ' + 'BROWER: ' + filterLog.message, false);
+							} else if (filterLog.level.value > 800) {
+								log('BROWER: ' + filterLog.message, 'warn');
+							}
+						});
+
+					case 15:
+					case 'end':
+						return _context7.stop();
+				}
+			}
+		}, _callee7, this);
+	}));
+
+	return function doCheckError() {
+		return _ref7.apply(this, arguments);
+	};
+}();
+
+var doSetSize = function () {
+	var _ref8 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee8(action) {
+		var sizes, width, height;
+		return _regenerator2.default.wrap(function _callee8$(_context8) {
+			while (1) {
+				switch (_context8.prev = _context8.next) {
+					case 0:
+						sizes = action.sizes, width = Config.windowSize.width || sizes.width, height = Config.windowSize.height || sizes.height;
+
+
+						log('set size to: w-' + width + ', h-' + height, null, errorCount);
+						_context8.next = 4;
+						return driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
+
+					case 4:
+					case 'end':
+						return _context8.stop();
+				}
+			}
+		}, _callee8, this);
+	}));
+
+	return function doSetSize(_x6) {
+		return _ref8.apply(this, arguments);
+	};
+}();
+
+var doWait = function () {
+	var _ref9 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee9(action, cb) {
+		return _regenerator2.default.wrap(function _callee9$(_context9) {
+			while (1) {
+				switch (_context9.prev = _context9.next) {
+					case 0:
+						log('wait for: ' + action.value + ' ms', null, errorCount);
+						_context9.next = 3;
+						return Utility.sleep(action.value);
+
+					case 3:
+					case 'end':
+						return _context9.stop();
+				}
+			}
+		}, _callee9, this);
+	}));
+
+	return function doWait(_x7, _x8) {
+		return _ref9.apply(this, arguments);
+	};
+}();
+
+var goToUrl = function () {
+	var _ref10 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee10(action) {
+		return _regenerator2.default.wrap(function _callee10$(_context10) {
+			while (1) {
+				switch (_context10.prev = _context10.next) {
+					case 0:
+						if (!currentUrl) {
+							_context10.next = 2;
+							break;
+						}
+
+						return _context10.abrupt('return');
+
+					case 2:
+
+						currentUrl = Config.startUrl || action.url;
+						log(currentUrl, null, errorCount);
+						_context10.next = 6;
+						return driver.get(action.url);
+
+					case 6:
+					case 'end':
+						return _context10.stop();
+				}
+			}
+		}, _callee10, this);
+	}));
+
+	return function goToUrl(_x9) {
+		return _ref10.apply(this, arguments);
+	};
+}();
+
+var doClick = function () {
+	var _ref11 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee11(action) {
+		return _regenerator2.default.wrap(function _callee11$(_context11) {
+			while (1) {
+				switch (_context11.prev = _context11.next) {
+					case 0:
+						_context11.next = 2;
+						return doClickAction(action);
+
+					case 2:
+					case 'end':
+						return _context11.stop();
+				}
+			}
+		}, _callee11, this);
+	}));
+
+	return function doClick(_x10) {
+		return _ref11.apply(this, arguments);
+	};
+}();
+
+var doDblClick = function () {
+	var _ref12 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee12(action) {
+		return _regenerator2.default.wrap(function _callee12$(_context12) {
+			while (1) {
+				switch (_context12.prev = _context12.next) {
+					case 0:
+						_context12.next = 2;
+						return doClickAction(action, true);
+
+					case 2:
+					case 'end':
+						return _context12.stop();
+				}
+			}
+		}, _callee12, this);
+	}));
+
+	return function doDblClick(_x11) {
+		return _ref12.apply(this, arguments);
+	};
+}();
+
+var doClickAction = function () {
+	var _ref13 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee13(action, isDbl) {
+		var targetPosition, x, y, offSetX, offSetY, el, driverActions;
+		return _regenerator2.default.wrap(function _callee13$(_context13) {
+			while (1) {
+				switch (_context13.prev = _context13.next) {
+					case 0:
+						targetPosition = getTargetPosition(action.target), x = action.clientX, y = action.clientY, offSetX = x - targetPosition.x || 0, offSetY = y - targetPosition.y || 0;
+
+
+						log((!isDbl ? 'click' : 'double click') + ':  ' + x + ', ' + y, null, errorCount);
+
+						_context13.next = 4;
+						return getEl(action.target);
+
+					case 4:
+						el = _context13.sent;
+
+						driverActions = driver.actions().mouseMove(el, { x: offSetX, y: offSetY });
+						if (!isDbl) {
+							driverActions.click();
+						} else {
+							driverActions.doubleClick();
+						}
+
+						_context13.next = 9;
+						return driverActions.perform();
+
+					case 9:
+					case 'end':
+						return _context13.stop();
+				}
+			}
+		}, _callee13, this);
+	}));
+
+	return function doClickAction(_x12, _x13) {
+		return _ref13.apply(this, arguments);
+	};
+}();
+
+var doContextMenu = function () {
+	var _ref14 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee14(action) {
+		var x, y, el;
+		return _regenerator2.default.wrap(function _callee14$(_context14) {
+			while (1) {
+				switch (_context14.prev = _context14.next) {
+					case 0:
+						x = action.clientX, y = action.clientY;
+
+
+						log('contextmenu:  ' + x + ', ' + y, null, errorCount);
+						_context14.next = 4;
+						return getEl(action.target);
+
+					case 4:
+						el = _context14.sent;
+						_context14.next = 7;
+						return driver.actions().click(el, 2).perform();
+
+					case 7:
+					case 'end':
+						return _context14.stop();
+				}
+			}
+		}, _callee14, this);
+	}));
+
+	return function doContextMenu(_x14) {
+		return _ref14.apply(this, arguments);
+	};
+}();
+
+var doKey = function () {
+	var _ref15 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee15(action, cb) {
+		var keyCode, key, el;
+		return _regenerator2.default.wrap(function _callee15$(_context15) {
+			while (1) {
+				switch (_context15.prev = _context15.next) {
+					case 0:
+						keyCode = action.keyCode, key = KeyMap[action.keyCode] || String.fromCharCode(action.keyCode);
+
+
+						log('key:  ' + key + ' : ' + keyCode, null, errorCount);
+						_context15.next = 4;
+						return getEl(action.target);
+
+					case 4:
+						el = _context15.sent;
+						_context15.next = 7;
+						return el.sendKeys(key);
+
+					case 7:
+					case 'end':
+						return _context15.stop();
+				}
+			}
+		}, _callee15, this);
+	}));
+
+	return function doKey(_x15, _x16) {
+		return _ref15.apply(this, arguments);
+	};
+}();
+
+var doKeyUp = function () {
+	var _ref16 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee16(action, cb) {
+		var value, el;
+		return _regenerator2.default.wrap(function _callee16$(_context16) {
+			while (1) {
+				switch (_context16.prev = _context16.next) {
+					case 0:
+						value = action.target && action.target.value;
+
+						if (!(value === null || value === undefined)) {
+							_context16.next = 5;
+							break;
+						}
+
+						_context16.next = 4;
+						return doKey(action);
+
+					case 4:
+						return _context16.abrupt('return');
+
+					case 5:
+
+						log('set value:  ' + value, null, errorCount);
+						_context16.next = 8;
+						return getEl(action.target);
+
+					case 8:
+						el = _context16.sent;
+						_context16.next = 11;
+						return driver.executeScript('arguments[0].value=arguments[1];', el, value);
+
+					case 11:
+					case 'end':
+						return _context16.stop();
+				}
+			}
+		}, _callee16, this);
+	}));
+
+	return function doKeyUp(_x17, _x18) {
+		return _ref16.apply(this, arguments);
+	};
+}();
+
+var doScroll = function () {
+	var _ref17 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee17(action) {
+		var el;
+		return _regenerator2.default.wrap(function _callee17$(_context17) {
+			while (1) {
+				switch (_context17.prev = _context17.next) {
+					case 0:
+						log('scroll: ' + action.scroll.left + ' ' + action.scroll.top, null, errorCount);
+
+						_context17.next = 3;
+						return getEl(action.target);
+
+					case 3:
+						el = _context17.sent;
+						_context17.next = 6;
+						return scrollByElement(el, action.scroll);
+
+					case 6:
+					case 'end':
+						return _context17.stop();
+				}
+			}
+		}, _callee17, this);
+	}));
+
+	return function doScroll(_x19) {
+		return _ref17.apply(this, arguments);
+	};
+}();
+
+var createErrorScreenshot = function () {
+	var _ref18 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee18(action) {
+		var fileName, errorFolder, errorFile, data;
+		return _regenerator2.default.wrap(function _callee18$(_context18) {
+			while (1) {
+				switch (_context18.prev = _context18.next) {
+					case 0:
+						fileName = currentActionIdx + '-' + action.id + '-' + (action.type || '') + '.png', errorFolder = Config.screenErrorFolder + '/' + currentTestName + '/' + currentStep.name + '/', errorFile = '' + errorFolder + fileName;
+						_context18.next = 3;
+						return resetMouse();
+
+					case 3:
+						_context18.next = 5;
+						return getScreenshotData();
+
+					case 5:
+						data = _context18.sent;
+
+						data = highlightTarget(action, data, [255, 0, 0]);
+						fse.ensureDirSync(errorFolder);
+						fs.writeFileSync(errorFile, data, 'base64');
+
+					case 9:
+					case 'end':
+						return _context18.stop();
+				}
+			}
+		}, _callee18, this);
+	}));
+
+	return function createErrorScreenshot(_x20) {
+		return _ref18.apply(this, arguments);
+	};
+}();
+
+var doScreenShot = function () {
+	var _ref19 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee19(action) {
+		var data;
+		return _regenerator2.default.wrap(function _callee19$(_context19) {
+			while (1) {
+				switch (_context19.prev = _context19.next) {
+					case 0:
+						_context19.next = 2;
+						return resetMouse();
+
+					case 2:
+						_context19.next = 4;
+						return getScreenshotData(action);
+
+					case 4:
+						data = _context19.sent;
+						_context19.next = 7;
+						return compareImages(action, data);
+
+					case 7:
+					case 'end':
+						return _context19.stop();
+				}
+			}
+		}, _callee19, this);
+	}));
+
+	return function doScreenShot(_x21) {
+		return _ref19.apply(this, arguments);
+	};
+}();
+
+var getScreenshotData = function () {
+	var _ref20 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee20(action) {
+		var imgStr, base64Data, png, regionPng;
+		return _regenerator2.default.wrap(function _callee20$(_context20) {
+			while (1) {
+				switch (_context20.prev = _context20.next) {
+					case 0:
+						_context20.next = 2;
+						return driver.takeScreenshot();
+
+					case 2:
+						imgStr = _context20.sent;
+						base64Data = imgStr.replace(/^data:image\/png;base64,/, '');
+
+
+						if (action && action.x >= 0 && action.y >= 0 && action.width && action.height) {
+							png = PNG.sync.read(new Buffer(base64Data, 'base64'));
+							regionPng = new PNG({ width: action.width, height: action.height });
+							PNG.bitblt(png, regionPng, action.x, action.y, action.width, action.height, 0, 0);
+							base64Data = PNG.sync.write(regionPng).toString('base64');
+						}
+
+						return _context20.abrupt('return', base64Data);
+
+					case 6:
+					case 'end':
+						return _context20.stop();
+				}
+			}
+		}, _callee20, this);
+	}));
+
+	return function getScreenshotData(_x22) {
+		return _ref20.apply(this, arguments);
+	};
+}();
+
+var doVerify = function () {
+	var _ref21 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee21(action) {
+		var textContent, verifyMessage, el;
+		return _regenerator2.default.wrap(function _callee21$(_context21) {
+			while (1) {
+				switch (_context21.prev = _context21.next) {
+					case 0:
+						textContent = (action.target || {}).textContent || action.id, verifyMessage = 'verify - "' + textContent + '"';
+
+
+						log(verifyMessage, null, errorCount);
+						_context21.next = 4;
+						return getEl(action.target);
+
+					case 4:
+						el = _context21.sent;
+
+						log(verifyMessage, !el ? 'error' : 'success');
+						updateResult(verifyMessage, el);
+
+					case 7:
+					case 'end':
+						return _context21.stop();
+				}
+			}
+		}, _callee21, this);
+	}));
+
+	return function doVerify(_x23) {
+		return _ref21.apply(this, arguments);
+	};
+}();
+
+var domClick = function () {
+	var _ref22 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee22(x, y) {
+		return _regenerator2.default.wrap(function _callee22$(_context22) {
+			while (1) {
+				switch (_context22.prev = _context22.next) {
+					case 0:
+						_context22.next = 2;
+						return driver.executeScript(function () {
+							var args = arguments[arguments.length - 1],
+							    el = window.document.elementFromPoint(args[0], args[1]),
+							    event = window.document.createEvent('Event');
+
+							event.initEvent('click', true, true);
+							el.dispatchEvent(event);
+						}, [x, y]);
+
+					case 2:
+					case 'end':
+						return _context22.stop();
+				}
+			}
+		}, _callee22, this);
+	}));
+
+	return function domClick(_x24, _x25) {
+		return _ref22.apply(this, arguments);
+	};
+}();
+
+var resetMouse = function () {
+	var _ref23 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee23() {
+		return _regenerator2.default.wrap(function _callee23$(_context23) {
+			while (1) {
+				switch (_context23.prev = _context23.next) {
+					case 0:
+						log('reset mouse');
+						_context23.next = 3;
+						return driver.actions().mouseMove({ x: -100000, y: -100000 }).click().perform();
+
+					case 3:
+					case 'end':
+						return _context23.stop();
+				}
+			}
+		}, _callee23, this);
+	}));
+
+	return function resetMouse() {
+		return _ref23.apply(this, arguments);
+	};
+}();
+
+var getEl = function () {
+	var _ref24 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee24(target) {
+		var targetPosition, posX, poxY, className;
+		return _regenerator2.default.wrap(function _callee24$(_context24) {
+			while (1) {
+				switch (_context24.prev = _context24.next) {
+					case 0:
+						targetPosition = getTargetPosition(target), posX = targetPosition.x + (targetPosition.width || 0) / 2, poxY = targetPosition.y + (targetPosition.height || 0) / 2, className = target.classList && (0, _keys2.default)(target.classList).map(function (key) {
+							return target.classList[key];
+						}).join(' ');
+						_context24.next = 3;
+						return driver.executeAsyncScript(findElementScriptFunc, [target.cssPath, posX, poxY, target.tagName, className, target.textContent, errorCount]);
+
+					case 3:
+						return _context24.abrupt('return', _context24.sent);
+
+					case 4:
+					case 'end':
+						return _context24.stop();
+				}
+			}
+		}, _callee24, this);
+	}));
+
+	return function getEl(_x26) {
+		return _ref24.apply(this, arguments);
+	};
+}();
+
+var scrollByElement = function () {
+	var _ref25 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee25(element, scrollOffset) {
+		return _regenerator2.default.wrap(function _callee25$(_context25) {
+			while (1) {
+				switch (_context25.prev = _context25.next) {
+					case 0:
+						_context25.next = 2;
+						return driver.executeScript(function () {
+							var args = arguments[arguments.length - 1],
+							    el = args[0],
+							    scrollOffset = args[1];
+
+							if (scrollOffset.left) {
+								el.scrollLeft = scrollOffset.left;
+							}
+
+							if (scrollOffset.top) {
+								el.scrollTop = scrollOffset.top;
+							}
+						}, [element, scrollOffset]);
+
+					case 2:
+					case 'end':
+						return _context25.stop();
+				}
+			}
+		}, _callee25, this);
+	}));
+
+	return function scrollByElement(_x27, _x28) {
+		return _ref25.apply(this, arguments);
+	};
+}();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fs = __webpack_require__(1),
+    fse = __webpack_require__(78),
+    resemble = __webpack_require__(286),
+    webdriver = __webpack_require__(306),
+    PNG = __webpack_require__(296).PNG,
+    Config = __webpack_require__(79),
+    KeyMap = __webpack_require__(170),
+    Utility = __webpack_require__(75),
+    driver,
+    channel,
+    browserMargin = {
+	x: 0,
+	y: 0
+},
+    actionMap = {
+	url: goToUrl,
+	click: doClick,
+	dblclick: doDblClick,
+	keydown: doKey,
+	keypress: doKey,
+	keyup: doKeyUp,
+	scroll: doScroll,
+	contextmenu: doContextMenu,
+	screenshot: doScreenShot,
+	verify: doVerify,
+	wait: doWait,
+	setsize: doSetSize
+},
+    currentUrl,
+    currentTestName,
+    currentTestResult = true,
+    currentStep,
+    currentStepResult = true,
+    currentActionIdx = 0,
+    isRunning = false,
+    isFinished = false,
+    isIE = Config.brower === 'internet explorer',
+    defaultErrorWait = Config.error && Config.error.wait || 300,
+    retryCount = Config.error && Config.error.retryCount || 3,
+    errorCount = 0,
+    errorWait = 0,
+    actionErrorCount = 0;
+
+function clearErrorCount() {
+	errorCount = 0;
+	errorWait = Config.error && Config.error.wait || 300;
+}
+
+function highlightTarget(action, data, color) {
+	var png,
+	    targetPosition = action && action.target && action.target.position,
+	    targetHeight,
+	    targetWidth,
+	    x,
+	    y,
+	    idx,
+	    isValid = targetPosition && targetPosition.x >= 0 && targetPosition.y >= 0 && targetPosition.width && targetPosition.height;
+
+	if (!isValid) {
+		return data;
+	}
+
+	png = PNG.sync.read(new Buffer(data, 'base64'));
+	targetHeight = Math.min(targetPosition.y + targetPosition.height, png.height);
+	targetWidth = Math.min(targetPosition.x + targetPosition.width, png.width);
+	for (var y = targetPosition.y; y < targetHeight; y += 1) {
+		for (var x = targetPosition.x; x < targetWidth; x += 1) {
+			if (y > targetPosition.y && y < targetHeight - 1 && x > targetPosition.x && x < targetWidth - 1) {
+				continue;
+			}
+
+			idx = png.width * y + x << 2;
+			png.data[idx] = color[0];
+			png.data[idx + 1] = color[1];
+			png.data[idx + 2] = color[2];
+		}
+	}
+
+	return PNG.sync.write(png).toString('base64');
+}
+
+function compareImages(action, base64Data) {
+	var stepName = currentStep.name,
+	    screenShotName = '' + (action.screenIndex || action.id),
+	    fileName = screenShotName + '.png',
+	    baseFolder = Config.screenBaseFolder + '/' + currentTestName + '/' + stepName + '/',
+	    currentFolder = Config.screenCurrentFolder + '/' + currentTestName + '/' + stepName + '/',
+	    diffFolder = Config.screenDiffFolder + '/' + currentTestName + '/' + stepName + '/',
+	    baseFile = '' + baseFolder + fileName,
+	    currentFile = '' + currentFolder + fileName,
+	    diffFile = '' + diffFolder + fileName,
+	    screenshotMessage = 'screenshot "' + stepName + ' - ' + screenShotName + '"',
+	    ws;
+
+	log(screenshotMessage, null, errorCount);
+	fse.ensureDirSync(baseFolder);
+	fse.ensureDirSync(currentFolder);
+	fse.ensureDirSync(diffFolder);
+
+	Utility.ensureFile(baseFile, base64Data, 'base64');
+	fs.writeFileSync(currentFile, base64Data, 'base64');
+
+	return new _promise2.default(function (resolve, reject) {
+		resemble(baseFile).compareTo(currentFile).ignoreColors().onComplete(function (data) {
+			var isSuccess = Number(data.misMatchPercentage) <= 0.01;
+
+			log(screenshotMessage, isSuccess ? 'success' : 'error');
+			updateResult(screenshotMessage, isSuccess);
+
+			if (isSuccess) {
+				resolve();
+			} else {
+				ws = fs.createWriteStream(diffFile);
+				ws.on('finish', function () {
+					resolve();
+				});
+				data.getDiffImage().pack().pipe(ws);
+			}
+		});
+	});
+}
+
+function findElementScriptFunc() {
+	var args = arguments[arguments.length - 2],
+	    callBack = arguments[arguments.length - 1],
+	    maxWait = 30000,
+	    wait = 0,
+	    waitInc = 500,
+	    el,
+	    cssPath = args[0],
+	    x = args[1] - window.pageXOffset,
+	    y = args[2] - window.pageYOffset,
+	    tagName = args[3],
+	    classNames = args[4],
+	    textContent = args[5],
+	    isDebugging = args[6],
+	    isDebuggingLogged = false;
+	hasShareClass = function hasShareClass(classes1, classe2) {
+		var classes = {};
+		classes1.split(' ').forEach(function (item) {
+			classes[item] = true;
+		});
+
+		return classe2.split(' ').some(function (item) {
+			return classes[item];
+		});
+	}, hasSameTextContent = function hasSameTextContent(element) {
+		if (!textContent) {
+			return true;
+		}
+
+		if ((element.textContent && element.textContent.replace(/\r|\n/g, '').substring(0, 100)) === textContent.replace(/\r|\n/g, '').substring(0, 100)) {
+			return true;
+		}
+
+		return false;
+	}, compareFun = function compareFun(item) {
+		var commonClass, trimmedClassName, itemClassName;
+
+		if (!item || item.tagName !== tagName) {
+			return false;
+		}
+
+		trimmedClassName = classNames && classNames.trim();
+		itemClassName = item.className && (item.className.baseVal && item.className.baseVal.trim() || item.className.trim && item.className.trim());
+
+		commonClass = !trimmedClassName || itemClassName === trimmedClassName || hasShareClass(itemClassName, trimmedClassName);
+		if (!commonClass) {
+			return false;
+		}
+
+		return hasSameTextContent(item);
+	}, getElsFromPosition = function getElsFromPosition(elX, elY) {
+		return document.elementsFromPoint && document.elementsFromPoint(elX, elY) || document.msElementsFromPoint && document.msElementsFromPoint(elX, elY) || [];
+	}, getElement = function (_getElement) {
+		function getElement() {
+			return _getElement.apply(this, arguments);
+		}
+
+		getElement.toString = function () {
+			return _getElement.toString();
+		};
+
+		return getElement;
+	}(function () {
+		if (wait >= maxWait) {
+			callBack(null);
+			return;
+		}
+
+		setTimeout(function () {
+			var currentEl, posEls, textSameEls, els, i, len;
+
+			if (cssPath && cssPath.length) {
+				els = document.querySelectorAll(cssPath);
+				textSameEls = Array.prototype.filter.call(els, function (element) {
+					return hasSameTextContent(element);
+				});
+
+				if (textSameEls && textSameEls.length === 1) {
+					callBack(textSameEls[0]);
+					return;
+				}
+
+				if (x != null && y != null) {
+					posEls = getElsFromPosition(x, y);
+					if (posEls && posEls.length) {
+						posEls = Array.prototype.filter.call(posEls, function (element) {
+							return element.tagName === tagName;
+						});
+					}
+
+					for (i = 0, len = els.length; i < len; i += 1) {
+						currentEl = els[i];
+						if (posEls.indexOf(currentEl) > -1) {
+							console.log('cssPath + xy');
+							callBack(currentEl);
+							return;
+						}
+					}
+				}
+			}
+
+			if (x != null && y != null) {
+				el = document.elementFromPoint(x, y);
+				if (compareFun(el)) {
+					callBack(el);
+					return;
+				}
+
+				els = posEls || getElsFromPosition(x, y);
+				for (i = 0, len = els.length; i < len; i += 1) {
+					currentEl = els[i];
+					if (compareFun(currentEl)) {
+						callBack(currentEl);
+						return;
+					}
+				}
+			}
+
+			if (!isDebuggingLogged) {
+				console.log([args, els]);
+				isDebuggingLogged = true;
+			}
+
+			wait += waitInc;
+			getElement();
+		}, wait > 0 ? waitInc : 0);
+	});
+
+	getElement();
+};
+
+function getTargetPosition(target) {
+	return target.position || { x: 0, y: 0 };
+}
+
+function updateResult(message, result) {
+	logResult(message, result);
+	if (!result) {
+		currentStepResult = false;
+		currentTestResult = false;
+	}
+}
+
+function log(content, type, isForce) {
+	channel && channel({
+		testName: currentTestName,
+		stepName: currentStep && currentStep.name,
+		timeStamp: new Date().toISOString(),
+		type: type || 'log',
+		content: content,
+		isForce: isForce
+	});
+}
+
+function logResult(content, result, isTestOnly) {
+	var message = {
+		testName: currentTestName,
+		timeStamp: new Date().toISOString(),
+		type: 'result',
+		content: content,
+		result: result
+	};
+
+	if (!isTestOnly && currentStep && currentStep.name) {
+		message.stepName = currentStep.name;
+	}
+
+	channel && channel(message);
+}
+
+var StepRunner = {
+	runTest: runTest
+};
+
+module.exports = StepRunner;
 
 /***/ },
 /* 162 */
@@ -26460,7 +27802,16 @@ module.exports = function(/*String|Buffer*/input, /*Number*/inputType) {
 /***/ function(module, exports) {
 
 "use strict";
-'use strict';var KeyMap={'8':'\uE003','9':'\uE004','13':'\uE007','46':'\uE017'};module.exports=KeyMap;
+'use strict';
+
+var KeyMap = {
+    8: '\uE003',
+    9: '\uE004',
+    13: '\uE007',
+    46: '\uE017'
+};
+
+module.exports = KeyMap;
 
 /***/ },
 /* 171 */
@@ -45881,7 +47232,155 @@ module.exports = require("vm");
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-'use strict';var _regenerator=__webpack_require__(77),_regenerator2=_interopRequireDefault(_regenerator),_asyncToGenerator2=__webpack_require__(76),_asyncToGenerator3=_interopRequireDefault(_asyncToGenerator2),runTest=function(){var _ref=(0,_asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(a,b){var c;return _regenerator2.default.wrap(function _callee$(_context){for(;1;)switch(_context.prev=_context.next){case 0:return initFolders(a),c=getSteps(a,b),_context.next=4,StepRunner.runTest(testName,c,b);case 4:case'end':return _context.stop();}},_callee,this)}));return function runTest(_x,_x2){return _ref.apply(this,arguments)}}();function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj}}var screenBaseFolder,screenCurrentFolder,screenDiffFolder,screenErrorFolder,testName,isParallel,fs=__webpack_require__(1),fse=__webpack_require__(78),path=__webpack_require__(0),StepRunner=__webpack_require__(161),Config=__webpack_require__(79),Utility=__webpack_require__(75);init();function init(){isParallel=!1,2<process.argv.length&&(isParallel=!0,RunAsParallel(process.argv[2]))}function RunAsParallel(a){runTest(a,parallelChanel)}function parallelChanel(a){process.send(a)}function initFolders(a){testName=path.relative(Config.sourceFolder,a),screenBaseFolder=path.join(Config.screenBaseFolder,testName),screenCurrentFolder=path.join(Config.screenCurrentFolder,testName),screenDiffFolder=path.join(Config.screenDiffFolder,testName),screenErrorFolder=path.join(Config.screenErrorFolder,testName),[screenBaseFolder,screenCurrentFolder,screenDiffFolder,screenErrorFolder].forEach(function(b){fse.ensureDirSync(b)}),[screenCurrentFolder,screenDiffFolder,screenErrorFolder].forEach(function(b){fse.emptyDirSync(b)})}function getSteps(a,b){var d,f,g,h,j,k,l,c=path.join(a,'steps.json'),m=[];if(!Utility.fileExists(c))return b({type:'error',content:testName+': Could not find step file!'}),null;if(d=JSON.parse(fs.readFileSync(c,'utf8')),f=d&&d.steps,!!f){for(g=0,h=f.length;g<h;g+=1){if(k=f[g]&&f[g].name,l=path.join(a,k+'.json'),!Utility.fileExists(l)&&(l=path.join(Config.shareFolder,k+'.json'),!Utility.fileExists(l)))return b({type:'error',content:'Could not find step: '+k}),null;try{j=fs.readFileSync(l,'utf8'),j&&m.push(JSON.parse(j))}catch(n){return b({type:'error',content:l+': Invalid content'}),null}}return m}}var TestRunner={runTest:runTest};module.exports=TestRunner;
+'use strict';
+
+var _regenerator = __webpack_require__(77);
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _asyncToGenerator2 = __webpack_require__(76);
+
+var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
+
+var runTest = function () {
+	var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(testFolder, channel) {
+		var steps;
+		return _regenerator2.default.wrap(function _callee$(_context) {
+			while (1) {
+				switch (_context.prev = _context.next) {
+					case 0:
+
+						initFolders(testFolder);
+						steps = getSteps(testFolder, channel);
+						_context.next = 4;
+						return StepRunner.runTest(testName, steps, channel);
+
+					case 4:
+					case 'end':
+						return _context.stop();
+				}
+			}
+		}, _callee, this);
+	}));
+
+	return function runTest(_x, _x2) {
+		return _ref.apply(this, arguments);
+	};
+}();
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var fs = __webpack_require__(1),
+    fse = __webpack_require__(78),
+    path = __webpack_require__(0),
+    StepRunner = __webpack_require__(161),
+    Config = __webpack_require__(79),
+    Utility = __webpack_require__(75),
+    screenBaseFolder,
+    screenCurrentFolder,
+    screenDiffFolder,
+    screenErrorFolder,
+    testName,
+    isParallel;
+
+init();
+
+function init() {
+	isParallel = false;
+	if (process.argv.length > 2) {
+		isParallel = true;
+		RunAsParallel(process.argv[2]);
+	}
+}
+
+function RunAsParallel(testFolder) {
+	runTest(testFolder, parallelChanel);
+}
+
+function parallelChanel(message) {
+	process.send(message);
+}
+
+function initFolders(testFolder) {
+	testName = path.relative(Config.sourceFolder, testFolder);
+
+	screenBaseFolder = path.join(Config.screenBaseFolder, testName);
+	screenCurrentFolder = path.join(Config.screenCurrentFolder, testName);
+	screenDiffFolder = path.join(Config.screenDiffFolder, testName);
+	screenErrorFolder = path.join(Config.screenErrorFolder, testName);
+
+	[screenBaseFolder, screenCurrentFolder, screenDiffFolder, screenErrorFolder].forEach(function (folder) {
+		fse.ensureDirSync(folder);
+	});
+
+	[screenCurrentFolder, screenDiffFolder, screenErrorFolder].forEach(function (folder) {
+		fse.emptyDirSync(folder);
+	});
+}
+
+function getSteps(testFolder, channel) {
+	var stepsFile = path.join(testFolder, 'steps.json'),
+	    stepNames,
+	    steps,
+	    i,
+	    len,
+	    stepData,
+	    stepName,
+	    stepPath,
+	    results = [];
+
+	if (!Utility.fileExists(stepsFile)) {
+		channel({
+			type: 'error',
+			content: testName + ': Could not find step file!'
+		});
+		return null;
+	}
+
+	stepNames = JSON.parse(fs.readFileSync(stepsFile, 'utf8'));
+	steps = stepNames && stepNames.steps;
+	if (!steps) {
+		return;
+	}
+
+	for (i = 0, len = steps.length; i < len; i += 1) {
+		stepName = steps[i] && steps[i].name;
+		stepPath = path.join(testFolder, stepName + '.json');
+
+		if (!Utility.fileExists(stepPath)) {
+			stepPath = path.join(Config.shareFolder, stepName + '.json');
+
+			if (!Utility.fileExists(stepPath)) {
+				channel({
+					type: 'error',
+					content: 'Could not find step: ' + stepName
+				});
+				return null;
+			}
+		}
+
+		try {
+			stepData = fs.readFileSync(stepPath, 'utf8');
+			if (stepData) {
+				results.push(JSON.parse(stepData));
+			}
+		} catch (e) {
+			channel({
+				type: 'error',
+				content: stepPath + ': Invalid content'
+			});
+			return null;
+		}
+	}
+
+	return results;
+}
+
+var TestRunner = {
+	runTest: runTest
+};
+
+module.exports = TestRunner;
 
 /***/ }
 /******/ ]);

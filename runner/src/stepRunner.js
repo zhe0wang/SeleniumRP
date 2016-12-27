@@ -8,6 +8,10 @@ var fs = require('fs'),
 	Utility = require('./utility.js'),
 	driver,
 	channel,
+	browserMargin = {
+		x:0, 
+		y: 0
+	},
 	actionMap = {
 		url: goToUrl,
 		click: doClick,
@@ -85,7 +89,9 @@ async function runTest(testName, steps, testChannel) {
 
 async function initDriver() {
 	var builder = new webdriver.Builder().forBrowser(Config.brower),
-		capabilities;
+		capabilities,
+		width = Config.windowSize.width || 800,
+		height = Config.windowSize.height || 600;
 
 	if (Config.serverUrl) {
 		builder.usingServer(Config.serverUrl);
@@ -102,8 +108,17 @@ async function initDriver() {
 
 	driver = builder.build();
 
+	await updateBrowserMargin();
 	driver.manage().timeouts().setScriptTimeout(15000);
-	await driver.manage().window().setSize(Config.windowSize.width || 800, Config.windowSize.height || 600);
+	await driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
+}
+
+async function updateBrowserMargin() {
+	var margins = await driver.executeScript('return [window.outerWidth-window.innerWidth, window.outerHeight-window.innerHeight];');
+	browserMargin = {
+		x: margins[0],
+		y: margins[1]
+	};
 }
 
 async function runStepActions(step) {
@@ -197,7 +212,7 @@ async function doSetSize(action) {
 		height = Config.windowSize.height || sizes.height;
 
 	log(`set size to: w-${width}, h-${height}`, null, errorCount);
-	await driver.manage().window().setSize(width, height);
+	await driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
 }
 
 async function doWait(action, cb) {
