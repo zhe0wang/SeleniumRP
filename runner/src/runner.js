@@ -66,7 +66,7 @@ function fetchTests() {
 			&& (!testToRun.length 
 				|| testToRun.some((toRun) => Utility.isOnPath(subFolder, toRun)))) {
 			stepsFile = path.join(subFolder, 'steps.json');
-			if (Utility.fileExists(stepsFile)) {
+			if (fs.existsSync(stepsFile)) {
 				tests.push(subFolder);					
 			}
 		}

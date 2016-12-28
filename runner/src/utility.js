@@ -16,21 +16,10 @@ function getFiles(dir, forFolder){
     return all;
 }
 
-function fileExists(path) {
-    try {
-        fs.statSync(path);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 function ensureFile(path, data, encoding) {
 	var state;
 
-	try {
-		fs.statSync(path);
-	} catch (e) {
+    if (!fs.existsSync(path)) {
 		fs.writeFileSync(path, data, encoding);
 	}
 }
@@ -45,7 +34,6 @@ function sleep(ms = 0) {
 
 const Utility = {
     getFiles: getFiles,
-    fileExists: fileExists,
     ensureFile: ensureFile,
     sleep: sleep,
     isOnPath: isOnPath

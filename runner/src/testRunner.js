@@ -65,7 +65,7 @@ function getSteps(testFolder, channel) {
 		stepPath,
 		results = [];
 
-	if (!Utility.fileExists(stepsFile)) {
+	if (!fs.existsSync(stepsFile)) {
 		channel({
 			type: 'error',
 			content: testName + ': Could not find step file!'
@@ -83,10 +83,10 @@ function getSteps(testFolder, channel) {
 		stepName = steps[i] && steps[i].name;
 		stepPath = path.join(testFolder, `${stepName}.json`);
 		
-		if (!Utility.fileExists(stepPath)) {
+		if (!fs.existsSync(stepPath)) {
 			stepPath = path.join(Config.shareFolder, `${stepName}.json`);
 			
-			if (!Utility.fileExists(stepPath)) {
+			if (!fs.existsSync(stepPath)) {
 				channel({
 					type: 'error',
 					content: 'Could not find step: ' + stepName
