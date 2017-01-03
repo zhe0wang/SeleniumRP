@@ -31,10 +31,10 @@ At last you can view the screenshots different using the differ tool.
 This is a Reactjs application. Similar to Redux design, it has a central store, actions and stateless components, but it is built on RXjs. Components observe state change saved in the central store, and actions will be triggered from Components, then pass on the state changes to the central store.
 
 ###Runner
-This is Nodejs application. It is using async/await to make workflow simplier.
+This is Nodejs application. It is using async/await to make workflow simplier. For build, Webpack + babel is still in use. But for development, async/await with babel compiler is not a pleasant experience. The walk around is using Nodejs nightly build, which supports async/await, behind --harmony-async-await flag! E.g. node --harmony-async-await runner.js
 
 ###Differ
-This is written in pure Javascript
+This is written in pure Javascript. For the simplicity, Fetch Api is used (IE doesn't support it yet)
 
 
 
