@@ -26,7 +26,6 @@
         isMouseDown = false,
         eventModule,
         previousTime,
-        refTarget,
         updateStateHandler;
 
     function startListening(cb) {
@@ -285,21 +284,7 @@
             target = getEventTarget(evt.target),
             targetValue;
 
-        if (target && refTarget && refTarget.type.indexOf(type) > -1 && evt.target && evt.target === refTarget.el) {
-            targetValue = target.value;
-            target = refTarget.target;
-            target.value = targetValue;
-        }
-
         if (eventConfig) {
-            if (eventConfig.refTarget) {
-                refTarget = {
-                    type: eventConfig.refTarget.type,
-                    el: evt.target,
-                    target: target
-                };
-            }
-
             if (eventConfig.condition && !eventConfig.condition(evt)) {
                 return;
             }

@@ -10,9 +10,6 @@
             mouseenter: {
                 condition: function (evt) {
                     return false;
-                },
-                refTarget: {
-                    type: ['click']
                 }
             },
             dblclick: {
@@ -31,9 +28,6 @@
                 props: ['key', 'keyCode', 'char', 'charCode', 'location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey'],
                 condition: function (evt) {
                     return evt.keyCode === 8 || evt.keyCode === 46 || evt.keyCode === 13;
-                },
-                refTarget: {
-                    type: ['keyup', 'keypress']
                 }
             },
             keypress: {
