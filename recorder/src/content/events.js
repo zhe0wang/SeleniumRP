@@ -365,30 +365,28 @@
     function getCssPath(target) {
         var currentTarget = target,
             currentCssPath = buildCssPath(currentTarget),
-            cssPath = currentCssPath,
+            cssPath,
             els,
             nth,
             parent,
-            parentCssPath,
             isUnique;
 
-        if (!uniqueCssPath) {
-            return cssPath;
+        if (!uniqueCssPath || isUniqueSelector(currentCssPath)) {
+            return currentCssPath;
         }
 
-        isUnique = isUniqueSelector(cssPath);
         parent = currentTarget.parentNode;            
         while (!isUnique && parent !== null) {
             els = parent.querySelectorAll(currentCssPath);
             if (els.length > 1) {
                 nth = Array.prototype.indexOf.call(els, currentTarget);
                 if (nth > -1) {
-                    currentCssPath += ':nth-child(' + (nth + 1) + ')'
+                    currentCssPath += ':nth-child(' + (nth + 1) + ')';
                 }
             }
             
             if (currentCssPath !== cssPath) {
-                cssPath = currentCssPath + ' ' + cssPath;
+                cssPath = cssPath ? currentCssPath + ' ' + cssPath : currentCssPath;
             }
             currentTarget = parent;            
             currentCssPath = buildCssPath(currentTarget);
