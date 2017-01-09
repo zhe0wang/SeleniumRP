@@ -28,7 +28,7 @@ At last you can view the screenshots different using the differ tool.
 ##Tech Notes
 
 ###Recorder
-This is a Reactjs application. Similar to Redux design, it has a central store, actions and stateless components, but it is built on RXjs. Components observe state change saved in the central store, and actions will be triggered from Components, then pass on the state changes to the central store.
+This is a Reactjs application. Similar to Redux design, it has a central store, actions and stateless components, but it is built on RXjs (Reactive Programming). Components observe state change saved in the central store, and actions will be triggered from Components, then pass on the state changes to the central store.
 
 ###Runner
 This is Nodejs application. It is using async/await to make workflow simplier. For build, Webpack + babel is still in use. But for development, async/await with babel compiler is not a pleasant experience. The walk around is using Nodejs nightly build, which supports async/await, behind --harmony-async-await flag! E.g. node --harmony-async-await runner.js
