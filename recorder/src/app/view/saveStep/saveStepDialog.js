@@ -54,7 +54,7 @@ const handleSumbit = (evt, appState) => {
     closeDialog();
 };
 
-const saveStepDialog = ({appState}) => {
+const SaveStepDialog = ({appState}) => {
     return (
         <div tabIndex="0" className={appState.toShowSaveStepDialog ? "i-dialog" : "i-dialog i-hidden"} onKeyDown={onDialogKeyDown}>
             <div className="i-dialog-content">
@@ -93,4 +93,4 @@ const saveStepDialog = ({appState}) => {
     );
 };
 
-export default saveStepDialog;
+export default SaveStepDialog;
