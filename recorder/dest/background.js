@@ -1,1 +1,122 @@
-!function(n){function e(r){if(t[r])return t[r].exports;var o=t[r]={i:r,l:!1,exports:{}};return n[r].call(o.exports,o,o.exports,e),o.l=!0,o.exports}var t={};return e.m=n,e.c=t,e.i=function(n){return n},e.d=function(n,e,t){Object.defineProperty(n,e,{configurable:!1,enumerable:!0,get:t})},e.n=function(n){var t=n&&n.__esModule?function(){return n["default"]}:function(){return n};return e.d(t,"a",t),t},e.o=function(n,e){return Object.prototype.hasOwnProperty.call(n,e)},e.p="",e(e.s=357)}({357:function(n,e){"use strict";!function(n){function e(){return{isRecording:n.appState&&n.appState.isRecording}}var t,r,o={isRecording:e};chrome.windows.onRemoved.addListener(function(n){t&&t.id===n&&(t=null)}),chrome.browserAction.onClicked.addListener(function(e){t||chrome.tabs.query({active:!0,currentWindow:!0},function(e){r=e[0],n.currentTab=r,chrome.windows.create({url:"index.html",type:"popup",width:1150,height:750},function(n){n.dashboard=t})})}),chrome.runtime.onMessage.addListener(function(n,e,t){return r&&e.tab&&e.tab.id===r.id?void t(o[n.action]()):void t(null)})}(window)}});
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId])
+/******/ 			return installedModules[moduleId].exports;
+/******/
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmory imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmory exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		Object.defineProperty(exports, name, {
+/******/ 			configurable: false,
+/******/ 			enumerable: true,
+/******/ 			get: getter
+/******/ 		});
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 367);
+/******/ })
+/************************************************************************/
+/******/ ({
+
+/***/ 367:
+/***/ function(module, exports) {
+
+"use strict";
+"use strict";
+
+(function (win) {
+    var dashboard,
+        currentTab,
+        actions = {
+        isRecording: isRecordingAction
+    };
+
+    chrome.windows.onRemoved.addListener(function (windowId) {
+        if (dashboard && dashboard.id === windowId) {
+            dashboard = null;
+        }
+    });
+
+    chrome.browserAction.onClicked.addListener(function (tab) {
+        if (!dashboard) {
+            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                currentTab = tabs[0];
+                win.currentTab = currentTab;
+                chrome.windows.create({
+                    url: "index.html",
+                    type: "popup",
+                    width: 1150,
+                    height: 750
+                }, function (win) {
+                    win.dashboard = dashboard;
+                });
+            });
+        }
+    });
+
+    chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+        if (!currentTab || !sender.tab || sender.tab.id !== currentTab.id) {
+            sendResponse(null);
+            return;
+        }
+
+        sendResponse(actions[request.action]());
+    });
+
+    function isRecordingAction() {
+        return { isRecording: win.appState && win.appState.isRecording };
+    }
+})(window);
+
+/***/ }
+
+/******/ });
+//# sourceMappingURL=background.js.map
