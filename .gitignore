@@ -4,10 +4,14 @@
 
 /recorder/.vscode
 /recorder/node_modules
-/runner/.vscode
-/runner/node_modules
+/recorder/package-lock.json
+
 /differ/.vscode
 /differ/node_modules
+/differ/package-lock.json
+
+/runner/.vscode
+/runner/node_modules
 /runner/data
 /runner/screens
 /runner/result.json
@@ -16,5 +20,4 @@
 /runner/dest/screens
 /runner/dest/result.json
 /runner/dest/result.trx
-
-
+/runner/package-lock.json
