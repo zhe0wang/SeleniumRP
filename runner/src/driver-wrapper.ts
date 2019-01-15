@@ -127,7 +127,7 @@ async function verify(target, text) {
 }
 
 async function resetMouse() {
-	await driver.actions().move({x: -100000, y: -100000});
+	await driver.actions().move({duration: 0, x: -100000, y: -100000});
 }
 
 async function screenshot() {
