@@ -123,6 +123,11 @@ async function verify(target, text) {
         return false;
     }
 
+    if (text) {
+        let elText = await el.getText();
+        return text.trim() === (elText || '').trim();
+    }
+
     return true;
 }
 
