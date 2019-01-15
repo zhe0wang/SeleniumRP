@@ -1,4 +1,6 @@
-var fs = require('fs'),
+const {Builder, By} = require('selenium-webdriver');
+
+let fs = require('fs'),
 	fse = require('fs-extra'),
 	resemble = require('node-resemble-js'),
 	webdriver = require('selenium-webdriver'),
@@ -32,11 +34,8 @@ var fs = require('fs'),
 	currentStep,
 	currentStepResult = true,
 	currentActionIdx = 0,
-	isRunning = false,
-	isFinished = false,
 	isIE = Config.brower === 'internet explorer',
 	defaultErrorWait = Config.error && Config.error.wait || 300,
-	retryCount = Config.error && Config.error.retryCount || 3,
 	errorCount = 0,
 	errorWait = 0,
 	actionErrorCount = 0;
@@ -88,7 +87,7 @@ async function runTest(testName, steps, testChannel) {
 }
 
 async function initDriver() {
-	var builder = new webdriver.Builder().forBrowser(Config.brower),
+	var builder = new Builder().forBrowser(Config.brower),
 		capabilities,
 		width = Config.windowSize.width || 800,
 		height = Config.windowSize.height || 600;
@@ -106,11 +105,13 @@ async function initDriver() {
 		builder.withCapabilities(capabilities);
 	}
 
-	driver = builder.build();
+	driver = await builder.build();
 
 	await updateBrowserMargin();
-	driver.manage().timeouts().setScriptTimeout(15000);
-	await driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
+	driver.manage().setTimeouts({
+		script: 15000
+	});
+	await driver.manage().window().setRect({ width: width + browserMargin.x, height: height + browserMargin.y})
 }
 
 async function updateBrowserMargin() {
@@ -146,10 +147,9 @@ async function runStepActions(step) {
 }
 
 async function doAction(action) {
-	var clientAction = action && actionMap[action.type],
-		actionWait;
-
+	var clientAction = action && actionMap[action.type];
 	if (!clientAction) {
+		log(`No action found for: ${action.type}`, 'warn')
 		return;
 	}
 
@@ -208,14 +208,14 @@ async function doCheckError() {
 
 async function doSetSize(action) {
 	var sizes = action.sizes,
-		width = Config.windowSize.width || sizes.width,
-		height = Config.windowSize.height || sizes.height;
+		width = (Config.windowSize.width || sizes.width) + browserMargin.x,
+		height = (Config.windowSize.height || sizes.height) + browserMargin.y;
 
 	log(`set size to: w-${width}, h-${height}`, null, errorCount);
-	await driver.manage().window().setSize(width + browserMargin.x, height + browserMargin.y);
+	await driver.manage().window().setRect({width, height});
 }
 
-async function doWait(action, cb) {
+async function doWait(action) {
 	log(`wait for: ${action.value} ms`, null, errorCount);
 	await Utility.sleep(action.value);
 }
@@ -239,25 +239,14 @@ async function doDblClick(action) {
 }
 
 async function doClickAction(action, isDbl) {
-	var targetPosition = getTargetPosition(action.target),
-		x = action.clientX,
-		y = action.clientY,
-		offSetX = (x - targetPosition.x) || 0,
-		offSetY = (y - targetPosition.y) || 0,
-		el,
-		driverActions;
-
-	log(`${!isDbl ? 'click' : 'double click'}:  ${x}, ${y}`, null, errorCount);
+	log(`${!isDbl ? 'click' : 'double click'}:  ${action.target.cssPath}`, null, errorCount);
 
 	el = await getEl(action.target);
-	driverActions = driver.actions().mouseMove(el, {x: offSetX, y: offSetY});
 	if (!isDbl) {
-		driverActions.click();
+		await el.click(el);
 	} else {
-		driverActions.doubleClick();
+		await el.doubleClick(el);
 	}
-
-	await driverActions.perform();
 }
 
 async function doContextMenu(action) {
@@ -268,7 +257,7 @@ async function doContextMenu(action) {
 	log(`contextmenu:  ${x}, ${y}`, null, errorCount);
 	el = await getEl(action.target);
 	await driver.actions()
-		.click(el, 2)
+		.contextClick(el, 2)
 		.perform();
 }
 
@@ -293,7 +282,7 @@ async function doKeyUp(action, cb) {
 
 	log(`set value:  ${value}`, null, errorCount);
 	el = await getEl(action.target);
-	await driver.executeScript('arguments[0].value=arguments[1];', el, value);
+	await el.sendKeys(value);
 }
 
 async function doScroll(action) {
@@ -302,6 +291,42 @@ async function doScroll(action) {
 
 	el = await getEl(action.target);
 	await scrollByElement(el, action.scroll);
+}
+
+async function doVerify(action) {
+	var textContent = (action.target || {}).textContent || action.id,
+		verifyMessage = `verify - "${textContent}"`,
+		el;
+
+	log(verifyMessage, null, errorCount);
+	el = await getEl(action.target);
+	log(verifyMessage, !el ? 'error' : 'success');
+	updateResult(verifyMessage, el);
+}
+
+async function resetMouse() {
+	log('reset mouse');
+	await driver.actions().move({x: -100000, y: -100000});
+}
+
+async function getEl(target) {
+	return await driver.findElement(By.css(target.cssPath));
+}
+
+async function scrollByElement(element, scrollOffset) {
+	await driver.executeScript(function () {
+		var args = arguments[arguments.length - 1],
+			el = args[0],
+			scrollOffset = args[1];
+		
+		if (scrollOffset.left) {
+			el.scrollLeft = scrollOffset.left;
+		}
+
+		if (scrollOffset.top) {
+			el.scrollTop = scrollOffset.top;
+		}	
+	}, [element, scrollOffset]);
 }
 
 async function createErrorScreenshot(action) {
@@ -413,190 +438,6 @@ function compareImages(action, base64Data) {
 			}			
 		});
 	});
-}
-
-async function doVerify(action) {
-	var textContent = (action.target || {}).textContent || action.id,
-		verifyMessage = `verify - "${textContent}"`,
-		el;
-
-	log(verifyMessage, null, errorCount);
-	el = await getEl(action.target);
-	log(verifyMessage, !el ? 'error' : 'success');
-	updateResult(verifyMessage, el);
-}
-
-async function domClick(x, y) {
-	await driver.executeScript(function () {
-		var args = arguments[arguments.length - 1],
-			el = window.document.elementFromPoint(args[0], args[1]),
-			event = window.document.createEvent('Event');
-
-		event.initEvent('click', true, true);
-		el.dispatchEvent(event);
-	}, [x, y]);
-}
-
-async function resetMouse() {
-	log('reset mouse');
-	await driver.actions().mouseMove({x: -100000, y: -100000}).click().perform();
-}
-
-async function getEl(target) {
-	var targetPosition = getTargetPosition(target),
-		posX = targetPosition.x + ((targetPosition.width || 0) / 2),
-		poxY = targetPosition.y + ((targetPosition.height || 0) / 2),
-		className = target.classList && Object.keys(target.classList).map((key) => target.classList[key]).join(' ');
-
-	return await driver.executeAsyncScript(findElementScriptFunc, [target.cssPath, posX, poxY, target.tagName, className, target.textContent, errorCount]);
-}
-
-function findElementScriptFunc () {
-	var args = arguments[arguments.length - 2],
-		callBack = arguments[arguments.length - 1],
-		maxWait = 30000,
-		wait = 0,
-		waitInc = 500,
-		el,
-		cssPath = args[0],
-		x = args[1] - window.pageXOffset, 
-		y = args[2] - window.pageYOffset,
-		tagName = args[3],
-		classNames = args[4],
-		textContent = args[5],
-		isDebugging = args[6],
-		isDebuggingLogged = false;
-		hasShareClass = (classes1, classe2) => {
-			var classes = {};
-			classes1.split(' ').forEach((item) => {
-				classes[item] = true;
-			});
-
-			return classe2.split(' ').some((item) => classes[item]);
-		},
-		hasSameTextContent = (element) => {
-			if (!textContent) {
-				return true;
-			}
-
-			if ((element.textContent && element.textContent.replace(/\r|\n/g, '').substring(0, 100)) === textContent.replace(/\r|\n/g, '').substring(0, 100)) {
-				return true;
-			}
-
-			return false;
-		},
-		compareFun = (item) => {
-			var commonClass,
-				trimmedClassName,
-				itemClassName;
-
-			if (!item || item.tagName !== tagName) {
-				return false;
-			}
-
-			trimmedClassName = classNames && classNames.trim();
-			itemClassName = item.className && ((item.className.baseVal && item.className.baseVal.trim()) || (item.className.trim && item.className.trim()));
-
-			commonClass = !trimmedClassName || itemClassName === trimmedClassName || hasShareClass(itemClassName, trimmedClassName);
-			if (!commonClass) {
-				return false;
-			}
-
-			return hasSameTextContent(item);
-		},
-		getElsFromPosition = (elX, elY) => (document.elementsFromPoint && document.elementsFromPoint(elX, elY)) || (document.msElementsFromPoint && document.msElementsFromPoint(elX, elY)) || [],
-		getElement = () => {
-			if (wait >= maxWait) {
-				callBack(null);
-				return;
-			}
-
-			setTimeout(() => {
-				var currentEl,
-					posEls,
-					textSameEls,
-					els,
-					i,
-					len;
-
-				if (cssPath && cssPath.length) {
-					els = document.querySelectorAll(cssPath);
-					textSameEls = Array.prototype.filter.call(els, (element) => {
-						return hasSameTextContent(element);
-					});
-
-					if (textSameEls && textSameEls.length === 1) {
-						callBack(textSameEls[0]);
-						return;
-					}
-
-					if (x != null && y != null) {
-						posEls = getElsFromPosition(x, y);
-						if (posEls && posEls.length) {
-							posEls = Array.prototype.filter.call(posEls, (element) => {								
-								return element.tagName === tagName;
-							});
-						}
-
-						for(i = 0, len = els.length; i < len; i += 1) {
-							currentEl = els[i];
-							if (posEls.indexOf(currentEl) > -1) {
-								console.log('cssPath + xy');
-								callBack(currentEl);
-								return;
-							}
-						}
-					}				
-				}
-
-				if (x != null && y != null) {
-					el = document.elementFromPoint(x, y);
-					if (compareFun(el)) {
-						callBack(el);
-						return;
-					}
-
-					els = posEls || getElsFromPosition(x, y);
-					for(i = 0, len = els.length; i < len; i += 1) {
-						currentEl = els[i];
-						if (compareFun(currentEl)) {
-							callBack(currentEl);
-							return;
-						}
-					}
-				}
-
-				if (!isDebuggingLogged) {
-					console.log([args, els]);
-					isDebuggingLogged = true;
-				}
-
-				wait += waitInc;
-				getElement();
-			}, wait > 0 ? waitInc : 0);
-		};
-
-	getElement();
-};
-
-async function scrollByElement(element, scrollOffset) {
-	await driver.executeScript(function () {
-		var args = arguments[arguments.length - 1],
-			el = args[0],
-			scrollOffset = args[1];
-		
-		if (scrollOffset.left) {
-			el.scrollLeft = scrollOffset.left;
-		}
-
-		if (scrollOffset.top) {
-			el.scrollTop = scrollOffset.top;
-		}	
-	}, [element, scrollOffset]);
-}
-
-function getTargetPosition(target) {
-	return target.position || { x: 0, y: 0 };
 }
 
 function updateResult(message, result) {

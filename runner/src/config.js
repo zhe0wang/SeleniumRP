@@ -1,4 +1,4 @@
-var Config = {
+let Config = {
     isDebugging: true,
     sourceFolder: './data/',
     shareFolder: './data/share/',

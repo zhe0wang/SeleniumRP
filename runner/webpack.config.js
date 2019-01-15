@@ -1,14 +1,6 @@
-const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
-
 const nodeEnv = process.env.NODE_ENV || 'development';
-
-const isProd = nodeEnv === 'production';
-
-var presents = isProd ? ["es2015", "stage-3", "babili"] : ["es2015", "stage-3"];
-
-var fs = require('fs');
 
 var nodeModules = {
     './config.js': 'commonjs ./config.js'
@@ -17,7 +9,7 @@ var nodeModules = {
 var plugins = [
     new CopyWebpackPlugin([
         { from: 'config.js' },
-        { from: '../drivers/chromedriver.exe'}//,
+        { from: '../drivers/chromedriver.exe' }//,
         //{ from: '../drivers/IEDriverServer.exe'},
         //{ from: '../drivers/MicrosoftWebDriver.exe'}
     ])//,
@@ -56,23 +48,25 @@ module.exports = {
     },
     externals: nodeModules,
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: "babel-loader",
-                query: {
-                    presets: presents,
-                    plugins: ["transform-runtime"]
-                }
+                use: [{
+                    loader:
+                     "babel-loader",
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }],
             }
         ]
     },
     resolve: {
-        extensions: ['', '.js'],
+        extensions: ['.js'],
         modules: [
-          path.resolve('./src'),
-          'node_modules'
+            path.resolve('./src'),
+            'node_modules'
         ]
     },
     plugins: plugins
