@@ -1,10 +1,11 @@
-var fs = require('fs'),
-	fse = require('fs-extra'),
-	path = require('path'),
-	StepRunner = require('./stepRunner.js'),
-	Config = require('./config.js'),
-	Utility = require('./utility.js'),
-	screenBaseFolder,
+import fs from 'fs';
+import fse from 'fs-extra';
+import path from 'path';
+import StepRunner from './step-runner';
+import Config from './config.json';
+import Utility from './utility';
+
+let	screenBaseFolder,
 	screenCurrentFolder,
 	screenDiffFolder,
 	screenErrorFolder,
@@ -26,11 +27,11 @@ function RunAsParallel(testFolder) {
 }
 
 function parallelChanel(message) {
-	process.send(message);
+	(<any>process).send(message);
 }
 
 async function runTest(testFolder, channel) {
-	var steps;
+	let steps;
 
 	initFolders(testFolder);
 	steps = getSteps(testFolder, channel);
@@ -55,7 +56,7 @@ function initFolders(testFolder) {
 }
 
 function getSteps(testFolder, channel) {
-	var stepsFile = path.join(testFolder, 'steps.json'),
+	let stepsFile = path.join(testFolder, 'steps.json'),
 		stepNames,
 		steps,
 		i,
@@ -63,7 +64,7 @@ function getSteps(testFolder, channel) {
 		stepData,
 		stepName,
 		stepPath,
-		results = [];
+		results: any = [];
 
 	if (!fs.existsSync(stepsFile)) {
 		channel({
@@ -112,8 +113,8 @@ function getSteps(testFolder, channel) {
 	return results;
 }
 
-var TestRunner = {
+let TestRunner = {
 	runTest: runTest
 };
 
-module.exports = TestRunner;
+export default TestRunner;

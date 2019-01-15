@@ -1,11 +1,11 @@
-var fs = require('fs'),
-    path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 function getFiles(dir, forFolder){
-    var all = [],
+    let all: any = [],
         files = fs.readdirSync(dir) || [];
-    for (var i in files){
-        var name = dir + (dir.endsWith('/') ? '' : '/') + files[i];
+    for (let i in files){
+        let name = dir + (dir.endsWith('/') ? '' : '/') + files[i];
         if (fs.statSync(name).isDirectory()) {
             forFolder && all.push(name);
             all = all.concat(getFiles(name, forFolder));
@@ -17,7 +17,7 @@ function getFiles(dir, forFolder){
 }
 
 function ensureFile(path, data, encoding) {
-	var state;
+	let state;
 
     if (!fs.existsSync(path)) {
 		fs.writeFileSync(path, data, encoding);
@@ -28,7 +28,7 @@ function isOnPath(a, b) {
     return a.startsWith(b) || !path.relative(a, b);
 }
 
-function sleep(ms = 0) {
+function sleep(ms: any = 0) {
     return new Promise(r => setTimeout(r, ms));
 }
 
@@ -39,4 +39,4 @@ const Utility = {
     isOnPath: isOnPath
 };
 
-module.exports = Utility;
+export default Utility;

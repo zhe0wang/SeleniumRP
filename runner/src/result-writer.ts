@@ -1,9 +1,10 @@
-var fs = require('fs'),
-    TRX = require('node-trx'),
-    TestRun = TRX.TestRun,
-    UnitTest = TRX.UnitTest,
-	Logger = require('./logger.js');
-
+import fs from 'fs';
+import TRX from 'node-trx';
+import Logger from './logger';
+ 
+let TestRun = TRX.TestRun,
+    UnitTest = TRX.UnitTest;
+    
 function writeResult(results) {
     if (!results.tests.length || !results.tests.some((t) => t.results && t.results.length)) {
         return;
@@ -44,7 +45,7 @@ function writeTrxResult(results) {
                     outcome = endResult && endResult.result ? 'Passed' : 'Failed',
                     startTime = startResult && startResult.timeStamp,
                     endTime = endResult && endResult.timeStamp,
-                    duration = startTime && endTime && (new Date(endTime) - new Date(startTime)),
+                    duration = startTime && endTime && (new Date(endTime).valueOf() - new Date(startTime).valueOf()),
                     actions;
 
                 testResult = {
@@ -77,4 +78,4 @@ const ResultWriter = {
     writeTrxResult: writeTrxResult
 };
 
-module.exports = ResultWriter;
+export default ResultWriter;

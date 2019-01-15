@@ -1,17 +1,18 @@
-var fs = require('fs'),
-	path = require('path'),
-	fse = require('fs-extra'),
-	fork = require('child_process').fork,
-	Config = require('./config.js'),
-	Utility = require('./utility.js'),
-	Logger = require('./logger.js'),
-	ResultWriter = require('./resultWriter.js'),
-	TestRunner = require('./testRunner.js'),
-	runnerResult = true,
-	results = {
+import fs from 'fs';
+import * as path from 'path';
+import fse from 'fs-extra';
+import {fork} from 'child_process';
+import Config from './config.json';
+import Utility from './utility';
+import Logger from './logger';
+import ResultWriter from './result-writer';
+import TestRunner from './test-runner';
+
+let runnerResult = true,
+	results: any = {
 		tests: []
 	},
-	tests = [],
+	tests: any = [],
 	testIdx;
 
 run();
@@ -22,7 +23,7 @@ async function run() {
 
 	process.on('uncaughtException', onError);
 	process.on('exit', 	() => {
-		var exitCode = runnerResult ? 0 : 1;
+		let exitCode = runnerResult ? 0 : 1;
 		Logger.log('Exit with: ' + exitCode);	
 		results.endTime = new Date().toISOString();
 		ResultWriter.writeResult(results);
@@ -45,11 +46,11 @@ function initFolders() {
 }
 
 function fetchTests() {
-	var folders = Utility.getFiles(Config.sourceFolder, true) || [],
-		testToRun = [];
+	let folders = Utility.getFiles(Config.sourceFolder, true) || [],
+		testToRun: any = [];
 	
 	tests = [];
-	process.argv.forEach((val, index) => {
+	process.argv.forEach((val: string, index) => {
 		if (index <= 1) {
 			return;
 		}
@@ -59,7 +60,7 @@ function fetchTests() {
 	
 	folders.push(Config.sourceFolder);
 	folders.forEach(function (subFolder) {
-		var stepsFile;
+		let stepsFile;
 
 		if (!Utility.isOnPath(subFolder, Config.shareFolder) 
 			&& (Config.exclude || []).every((exd) => !Utility.isOnPath(subFolder, exd))
@@ -82,7 +83,7 @@ async function  runTests() {
 }
 
 async function runSequence() {
-	var i = 0,
+	let i = 0,
 		len = tests.length;
 		
 	for(i = 0; i < len; i += 1) {
@@ -91,7 +92,7 @@ async function runSequence() {
 }
 
 function runParallel() {
-	var testLen = tests.length;
+	let testLen = tests.length;
 
 	for(testIdx = 0; testIdx < Config.batchSize && testIdx < testLen; testIdx += 1) {
 		createChildProcess(testIdx);
@@ -99,7 +100,7 @@ function runParallel() {
 }
 
 function createChildProcess(idx) {
-	var test = tests[idx],
+	let test = tests[idx],
 		child
 
 	if (!test) {
@@ -125,7 +126,7 @@ function runNextTest() {
 }
 
 function channel(message) {
-	var logAction = Logger[message.type],
+	let logAction = Logger[message.type],
 		hasStep = message.stepName,
 		test = results.tests.find((test) => test.name === message.testName),
 		prefix,
@@ -178,8 +179,8 @@ function onError(errors) {
 	runnerResult = false;
 }
 
-var Runner = {
+let Runner = {
 	run: run
 };
 
-module.exports = Runner;
+export default  Runner;

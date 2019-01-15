@@ -1,14 +1,14 @@
-const {Builder, By} = require('selenium-webdriver');
+import {Builder, By, Capabilities} from 'selenium-webdriver';
 
-let fs = require('fs'),
-	fse = require('fs-extra'),
-	resemble = require('node-resemble-js'),
-	webdriver = require('selenium-webdriver'),
-	PNG = require('pngjs').PNG,
-	Config = require('./config.js'),
-	KeyMap = require('./keyMap.js'),
-	Utility = require('./utility.js'),
-	driver,
+import fs from 'fs';
+import fse from 'fs-extra';
+import resemble from 'node-resemble-js';
+import PNG from 'pngjs';
+import Config from './config.json';
+import KeyMap from './key-map';
+import Utility from './utility';
+
+let driver,
 	channel,
 	browserMargin = {
 		x:0, 
@@ -38,7 +38,9 @@ let fs = require('fs'),
 	defaultErrorWait = Config.error && Config.error.wait || 300,
 	errorCount = 0,
 	errorWait = 0,
-	actionErrorCount = 0;
+	actionErrorCount = 0,
+	isFinished = false,
+	isRunning = false;
 	
 async function finish() {
 	if (Config.closeOnFinish && driver) {
@@ -49,7 +51,7 @@ async function finish() {
 }
 
 async function runTest(testName, steps, testChannel) {
-	var step,
+	let step,
 		i,
 		len = steps && steps.length;
 
@@ -87,7 +89,7 @@ async function runTest(testName, steps, testChannel) {
 }
 
 async function initDriver() {
-	var builder = new Builder().forBrowser(Config.brower),
+	let builder = new Builder().forBrowser(Config.brower),
 		capabilities,
 		width = Config.windowSize.width || 800,
 		height = Config.windowSize.height || 600;
@@ -97,7 +99,7 @@ async function initDriver() {
 	}
 
 	if (isIE) {
-		capabilities = webdriver.Capabilities.ie();
+		capabilities = Capabilities.ie();
 		capabilities.set('nativeEvents', false);
 		// capabilities.set('ie.forceCreateProcessApi', true);
 		// capabilities.set('ie.browserCommandLineSwitches', '-private');
@@ -115,7 +117,7 @@ async function initDriver() {
 }
 
 async function updateBrowserMargin() {
-	var margins = await driver.executeScript('return [window.outerWidth-window.innerWidth, window.outerHeight-window.innerHeight];');
+	let margins = await driver.executeScript('return [window.outerWidth-window.innerWidth, window.outerHeight-window.innerHeight];');
 	browserMargin = {
 		x: margins[0],
 		y: margins[1]
@@ -123,9 +125,9 @@ async function updateBrowserMargin() {
 }
 
 async function runStepActions(step) {
-	var actions = step.actions,
+	let actions = step.actions,
 		i,
-		errorStartIdx = null,
+		errorStartIdx: any = null,
 		len = actions.length;
 
 	for(i = 0; i < len; i +=1) {
@@ -147,7 +149,7 @@ async function runStepActions(step) {
 }
 
 async function doAction(action) {
-	var clientAction = action && actionMap[action.type];
+	let clientAction = action && actionMap[action.type];
 	if (!clientAction) {
 		log(`No action found for: ${action.type}`, 'warn')
 		return;
@@ -180,7 +182,7 @@ function clearErrorCount() {
 }
 
 async function doCheckError() {
-	var logType = 'browser',
+	let logType = 'browser',
 		driverLogs,
 		types,
 		logs,
@@ -207,7 +209,7 @@ async function doCheckError() {
 }
 
 async function doSetSize(action) {
-	var sizes = action.sizes,
+	let sizes = action.sizes,
 		width = (Config.windowSize.width || sizes.width) + browserMargin.x,
 		height = (Config.windowSize.height || sizes.height) + browserMargin.y;
 
@@ -238,10 +240,10 @@ async function doDblClick(action) {
 	await doClickAction(action, true);
 }
 
-async function doClickAction(action, isDbl) {
+async function doClickAction(action, isDbl = false) {
 	log(`${!isDbl ? 'click' : 'double click'}:  ${action.target.cssPath}`, null, errorCount);
 
-	el = await getEl(action.target);
+	let el = await getEl(action.target);
 	if (!isDbl) {
 		await el.click(el);
 	} else {
@@ -250,7 +252,7 @@ async function doClickAction(action, isDbl) {
 }
 
 async function doContextMenu(action) {
-	var	x = action.clientX,
+	let	x = action.clientX,
 		y = action.clientY,
 		el;
 
@@ -261,8 +263,8 @@ async function doContextMenu(action) {
 		.perform();
 }
 
-async function doKey(action, cb) {
-	var keyCode = action.keyCode,
+async function doKey(action) {
+	let keyCode = action.keyCode,
 		key = KeyMap[action.keyCode] || String.fromCharCode(action.keyCode),
 		el;
 
@@ -271,8 +273,8 @@ async function doKey(action, cb) {
 	await el.sendKeys(key);
 }
 
-async function doKeyUp(action, cb) {
-	var value = action.target && action.target.value,
+async function doKeyUp(action) {
+	let value = action.target && action.target.value,
 		el;
 
 	if (value === null || value === undefined) {
@@ -286,7 +288,7 @@ async function doKeyUp(action, cb) {
 }
 
 async function doScroll(action) {
-	var el;
+	let el;
 	log(`scroll: ${action.scroll.left} ${action.scroll.top}`, null, errorCount);
 
 	el = await getEl(action.target);
@@ -294,7 +296,7 @@ async function doScroll(action) {
 }
 
 async function doVerify(action) {
-	var textContent = (action.target || {}).textContent || action.id,
+	let textContent = (action.target || {}).textContent || action.id,
 		verifyMessage = `verify - "${textContent}"`,
 		el;
 
@@ -315,7 +317,7 @@ async function getEl(target) {
 
 async function scrollByElement(element, scrollOffset) {
 	await driver.executeScript(function () {
-		var args = arguments[arguments.length - 1],
+		let args = arguments[arguments.length - 1],
 			el = args[0],
 			scrollOffset = args[1];
 		
@@ -330,20 +332,20 @@ async function scrollByElement(element, scrollOffset) {
 }
 
 async function createErrorScreenshot(action) {
-	var fileName = `${currentActionIdx}-${action.id}-${action.type || ''}.png`,
+	let fileName = `${currentActionIdx}-${action.id}-${action.type || ''}.png`,
 		errorFolder = `${Config.screenErrorFolder}/${currentTestName}/${currentStep.name}/`,
 		errorFile = `${errorFolder}${fileName}`,
 		data;
 
 	await resetMouse();
-	data = await getScreenshotData();
+	data = await getScreenshotData(null);
 	data = highlightTarget(action, data, [255, 0, 0]);
 	fse.ensureDirSync(errorFolder);	
 	fs.writeFileSync(errorFile, data, 'base64');
 }
 
 function highlightTarget(action, data, color) {
-	var png,
+	let png,
 		targetPosition = action && action.target && action.target.position,
 		targetHeight,
 		targetWidth,
@@ -359,8 +361,8 @@ function highlightTarget(action, data, color) {
 	png = PNG.sync.read(new Buffer(data, 'base64'));
 	targetHeight = Math.min(targetPosition.y + targetPosition.height, png.height);
 	targetWidth = Math.min(targetPosition.x +  targetPosition.width, png.width);
-	for (var y = targetPosition.y; y < targetHeight; y += 1) {
-		for (var x = targetPosition.x; x < targetWidth; x += 1) {
+	for (let y = targetPosition.y; y < targetHeight; y += 1) {
+		for (let x = targetPosition.x; x < targetWidth; x += 1) {
 			if (y > targetPosition.y && y < targetHeight - 1 && x > targetPosition.x && x < targetWidth - 1) {
 				continue;
 			}
@@ -376,7 +378,7 @@ function highlightTarget(action, data, color) {
 }
 
 async function doScreenShot(action) {
-	var data;
+	let data;
 
 	await resetMouse();
 	data = await getScreenshotData(action);
@@ -384,7 +386,7 @@ async function doScreenShot(action) {
 }
 
 async function getScreenshotData(action) {
-	var imgStr = await driver.takeScreenshot(),
+	let imgStr = await driver.takeScreenshot(),
 		base64Data = imgStr.replace(/^data:image\/png;base64,/, ''),
 		png,
 		regionPng;
@@ -400,7 +402,7 @@ async function getScreenshotData(action) {
 }
 
 function compareImages(action, base64Data) {
-	var stepName = currentStep.name,
+	let stepName = currentStep.name,
 		screenShotName = `${action.screenIndex || action.id}`,
 		fileName = `${screenShotName}.png`,
 		baseFolder = `${Config.screenBaseFolder}/${currentTestName}/${stepName}/`,
@@ -422,7 +424,7 @@ function compareImages(action, base64Data) {
 
 	return new Promise((resolve, reject) => {
 		resemble(baseFile).compareTo(currentFile).ignoreColors().onComplete(function (data) {
-			var isSuccess = Number(data.misMatchPercentage) <= 0.01;
+			let isSuccess = Number(data.misMatchPercentage) <= 0.01;
 
 			log(screenshotMessage, isSuccess ? 'success' : 'error');
 			updateResult(screenshotMessage, isSuccess);
@@ -448,7 +450,7 @@ function updateResult(message, result) {
 	}
 }
 
-function log(content, type, isForce) {
+function log(content, type?, isForce?) {
 	channel && channel({
 		testName: currentTestName,
 		stepName: currentStep && currentStep.name,
@@ -459,8 +461,8 @@ function log(content, type, isForce) {
 	});
 }
 
-function logResult(content, result, isTestOnly) {
-	var message = {
+function logResult(content, result?, isTestOnly?) {
+	let message: any = {
 		testName: currentTestName,
 		timeStamp: new Date().toISOString(),
 		type: 'result',
@@ -475,8 +477,8 @@ function logResult(content, result, isTestOnly) {
 	channel && channel(message);
 }
 
-var StepRunner = {
+let StepRunner = {
 	runTest: runTest
 }
 
-module.exports = StepRunner;
+export default StepRunner;

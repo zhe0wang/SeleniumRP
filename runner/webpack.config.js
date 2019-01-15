@@ -3,12 +3,12 @@ const path = require('path');
 const nodeEnv = process.env.NODE_ENV || 'development';
 
 var nodeModules = {
-    './config.js': 'commonjs ./config.js'
+    './config.json': 'commonjs ./config.json'
 };
 
 var plugins = [
     new CopyWebpackPlugin([
-        { from: 'config.js' },
+        { from: 'config.json' },
         { from: '../drivers/chromedriver.exe' }//,
         //{ from: '../drivers/IEDriverServer.exe'},
         //{ from: '../drivers/MicrosoftWebDriver.exe'}
@@ -39,8 +39,8 @@ module.exports = {
     context: path.join(__dirname, './src'),
     target: 'node',
     entry: {
-        runner: ['./runner.js'],
-        testRunner: './testRunner.js'
+        runner: ['./runner.ts'],
+        testRunner: './test-runner.ts'
     },
     output: {
         path: path.join(__dirname, './dest'),
@@ -50,20 +50,14 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                use: [{
-                    loader:
-                     "babel-loader",
-                    options: {
-                        presets: ['@babel/preset-env']
-                    }
-                }],
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/
             }
         ]
     },
     resolve: {
-        extensions: ['.js'],
+        extensions: [ '.tsx', '.ts', '.js', '.json' ],
         modules: [
             path.resolve('./src'),
             'node_modules'

@@ -13,6 +13,7 @@
 /runner/.vscode
 /runner/node_modules
 /runner/data
+/runner/debug
 /runner/screens
 /runner/result.json
 /runner/result.trx
@@ -21,3 +22,4 @@
 /runner/dest/result.json
 /runner/dest/result.trx
 /runner/package-lock.json
+/runner/chromedriver.exe

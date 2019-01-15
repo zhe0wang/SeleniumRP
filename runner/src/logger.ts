@@ -1,5 +1,5 @@
-var chalk = require('chalk'),
-    isDebugging;
+import chalk from 'chalk';
+let isDebugging;
 
 function setDebugging(debugging) {
     isDebugging = debugging;
@@ -13,7 +13,7 @@ function highlight(message) {
     console.log(chalk.black.bgWhite(message));
 };
 
-function log(message, isForce) {
+function log(message, isForce = false) {
     if (isDebugging || isForce) {
         console.log(message);
     }
@@ -30,7 +30,7 @@ function error(message) {
 };
 
 function logError(errors) {
-    var errorsToLog = [];
+    let errorsToLog: any = [];
     if (errors) {
         errorsToLog = Array.isArray(errors) ? errors : [errors];
     }
@@ -51,7 +51,7 @@ function logError(errors) {
 }
 
 function message(config) {
-    var action = logger[config.type];
+    let action = Logger[config.type];
     if (action) {
         action(config.message, config.isForce);
     }
@@ -68,4 +68,4 @@ const Logger = {
     message: message
 };
 
-module.exports = Logger;
+export default Logger;
