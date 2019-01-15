@@ -1,19 +1,14 @@
-import {Builder, By, Capabilities} from 'selenium-webdriver';
-
 import fs from 'fs';
 import fse from 'fs-extra';
 import resemble from 'node-resemble-js';
-import PNG from 'pngjs';
+
 import Config from './config.json';
 import KeyMap from './key-map';
 import Utility from './utility';
+import DriverWrapper from './driver-wrapper';
+import Pixel from './Pixel';
 
-let driver,
-	channel,
-	browserMargin = {
-		x:0, 
-		y: 0
-	},
+let channel,
 	actionMap = {
 		url: goToUrl,
 		click: doClick,
@@ -34,7 +29,6 @@ let driver,
 	currentStep,
 	currentStepResult = true,
 	currentActionIdx = 0,
-	isIE = Config.brower === 'internet explorer',
 	defaultErrorWait = Config.error && Config.error.wait || 300,
 	errorCount = 0,
 	errorWait = 0,
@@ -43,10 +37,7 @@ let driver,
 	isRunning = false;
 	
 async function finish() {
-	if (Config.closeOnFinish && driver) {
-		await driver.quit();
-	}
-
+	Config.closeOnFinish && await DriverWrapper.close();
 	isFinished = true;
 }
 
@@ -65,7 +56,7 @@ async function runTest(testName, steps, testChannel) {
 	currentTestResult = true;
 	currentTestName = testName;
 	channel = testChannel;
-	await initDriver();
+	await DriverWrapper.init();
 
 	logResult('Start', null, true);
 	for(i = 0; i < len; i +=1) {
@@ -86,42 +77,6 @@ async function runTest(testName, steps, testChannel) {
 	finish();
 	logResult('Finish', currentTestResult, true);
 	isRunning = false;
-}
-
-async function initDriver() {
-	let builder = new Builder().forBrowser(Config.brower),
-		capabilities,
-		width = Config.windowSize.width || 800,
-		height = Config.windowSize.height || 600;
-
-	if (Config.serverUrl) {
-		builder.usingServer(Config.serverUrl);
-	}
-
-	if (isIE) {
-		capabilities = Capabilities.ie();
-		capabilities.set('nativeEvents', false);
-		// capabilities.set('ie.forceCreateProcessApi', true);
-		// capabilities.set('ie.browserCommandLineSwitches', '-private');
-
-		builder.withCapabilities(capabilities);
-	}
-
-	driver = await builder.build();
-
-	await updateBrowserMargin();
-	driver.manage().setTimeouts({
-		script: 15000
-	});
-	await driver.manage().window().setRect({ width: width + browserMargin.x, height: height + browserMargin.y})
-}
-
-async function updateBrowserMargin() {
-	let margins = await driver.executeScript('return [window.outerWidth-window.innerWidth, window.outerHeight-window.innerHeight];');
-	browserMargin = {
-		x: margins[0],
-		y: margins[1]
-	};
 }
 
 async function runStepActions(step) {
@@ -182,39 +137,27 @@ function clearErrorCount() {
 }
 
 async function doCheckError() {
-	let logType = 'browser',
-		driverLogs,
-		types,
-		logs,
-		filteredLogs;
-
-	if (isIE || !Config.browerLogLevel) {
+	let logs = await DriverWrapper.getLogs();
+	if (!logs) {
 		return;
 	}
 
-	driverLogs = await driver.manage().logs();
-	types = await driverLogs.getAvailableLogTypes();
-	if (types.indexOf(logType) > -1) {
-		logs = await driverLogs.get(logType);
-		filteredLogs = logs.filter((l) => l.level.value >= Config.browerLogLevel);
-		filteredLogs.forEach(function(filterLog) {
-			if (filterLog.level.value > 900) {
-				log('BROWER: ' + filterLog.message, 'error');
-				updateResult('Error occured: ' + 'BROWER: ' + filterLog.message, false);
-			} else if (filterLog.level.value > 800) {
-				log('BROWER: ' + filterLog.message, 'warn');
-			}
-		});
-	}
+	let filteredLogs = logs.filter((l) => l.level.value >= Config.browerLogLevel);
+	filteredLogs.forEach((filterLog) => {
+		if (filterLog.level.value > 900) {
+			log('BROWER: ' + filterLog.message, 'error');
+			updateResult('Error occured: ' + 'BROWER: ' + filterLog.message, false);
+		} else if (filterLog.level.value > 800) {
+			log('BROWER: ' + filterLog.message, 'warn');
+		}
+	});
 }
 
 async function doSetSize(action) {
-	let sizes = action.sizes,
-		width = (Config.windowSize.width || sizes.width) + browserMargin.x,
-		height = (Config.windowSize.height || sizes.height) + browserMargin.y;
+	let sizes = action.sizes;
 
-	log(`set size to: w-${width}, h-${height}`, null, errorCount);
-	await driver.manage().window().setRect({width, height});
+	log(`set size to: w-${sizes.width}, h-${sizes.height}`, null, errorCount);
+	await DriverWrapper.setWindowSize(sizes);
 }
 
 async function doWait(action) {
@@ -229,7 +172,7 @@ async function goToUrl(action) {
 
 	currentUrl = Config.startUrl || action.url;
 	log(currentUrl, null, errorCount);
-	await driver.get(action.url);
+	await DriverWrapper.goToUrl(action.url);
 }
 
 async function doClick(action) {
@@ -240,165 +183,80 @@ async function doDblClick(action) {
 	await doClickAction(action, true);
 }
 
-async function doClickAction(action, isDbl = false) {
-	log(`${!isDbl ? 'click' : 'double click'}:  ${action.target.cssPath}`, null, errorCount);
+async function doClickAction(action, isDoubleClick = false) {
+	log(`${!isDoubleClick ? 'click' : 'double click'}:  ${action.target.cssPath}`, null, errorCount);
 
-	let el = await getEl(action.target);
-	if (!isDbl) {
-		await el.click(el);
-	} else {
-		await el.doubleClick(el);
-	}
+	await DriverWrapper.click(action.target, isDoubleClick);
 }
 
 async function doContextMenu(action) {
 	let	x = action.clientX,
-		y = action.clientY,
-		el;
+		y = action.clientY;
 
 	log(`contextmenu:  ${x}, ${y}`, null, errorCount);
-	el = await getEl(action.target);
-	await driver.actions()
-		.contextClick(el, 2)
-		.perform();
+	await DriverWrapper.contextClick(action.target, x, y);
 }
 
 async function doKey(action) {
 	let keyCode = action.keyCode,
-		key = KeyMap[action.keyCode] || String.fromCharCode(action.keyCode),
-		el;
+		key = KeyMap[action.keyCode] || String.fromCharCode(action.keyCode);
 
 	log(`key:  ${key} : ${keyCode}`, null, errorCount);
-	el = await getEl(action.target);
-	await el.sendKeys(key);
+	await DriverWrapper.sendKeys(action.target, key);
 }
 
 async function doKeyUp(action) {
-	let value = action.target && action.target.value,
-		el;
-
+	let value = action.target && action.target.value;
 	if (value === null || value === undefined) {
 		await doKey(action);
 		return;
 	}
 
 	log(`set value:  ${value}`, null, errorCount);
-	el = await getEl(action.target);
-	await el.sendKeys(value);
+	await DriverWrapper.sendKeys(action.target, value);
 }
 
 async function doScroll(action) {
-	let el;
 	log(`scroll: ${action.scroll.left} ${action.scroll.top}`, null, errorCount);
 
-	el = await getEl(action.target);
-	await scrollByElement(el, action.scroll);
+	await DriverWrapper.scroll(action.target, action.scroll);
 }
 
 async function doVerify(action) {
-	let textContent = (action.target || {}).textContent || action.id,
-		verifyMessage = `verify - "${textContent}"`,
-		el;
+	let text = (action.target || {}).textContent,
+		verifyMessage = `verify - "${text || action.id}"`,
+		result;
 
 	log(verifyMessage, null, errorCount);
-	el = await getEl(action.target);
-	log(verifyMessage, !el ? 'error' : 'success');
-	updateResult(verifyMessage, el);
+	result = await DriverWrapper.verify(action.target, text);
+	log(verifyMessage, !result ? 'error' : 'success');
+	updateResult(verifyMessage, result);
 }
 
 async function resetMouse() {
 	log('reset mouse');
-	await driver.actions().move({x: -100000, y: -100000});
-}
-
-async function getEl(target) {
-	return await driver.findElement(By.css(target.cssPath));
-}
-
-async function scrollByElement(element, scrollOffset) {
-	await driver.executeScript(function () {
-		let args = arguments[arguments.length - 1],
-			el = args[0],
-			scrollOffset = args[1];
-		
-		if (scrollOffset.left) {
-			el.scrollLeft = scrollOffset.left;
-		}
-
-		if (scrollOffset.top) {
-			el.scrollTop = scrollOffset.top;
-		}	
-	}, [element, scrollOffset]);
+	await DriverWrapper.resetMouse();
 }
 
 async function createErrorScreenshot(action) {
 	let fileName = `${currentActionIdx}-${action.id}-${action.type || ''}.png`,
 		errorFolder = `${Config.screenErrorFolder}/${currentTestName}/${currentStep.name}/`,
-		errorFile = `${errorFolder}${fileName}`,
-		data;
+		errorFile = `${errorFolder}${fileName}`;
 
 	await resetMouse();
-	data = await getScreenshotData(null);
-	data = highlightTarget(action, data, [255, 0, 0]);
+	let imgStr = await DriverWrapper.screenshot();
+	let data = await Pixel.getImgData(imgStr);
+	let dim = action && action.target && action.target.position;
+	data = Pixel.highlight(dim, data, [255, 0, 0]);
 	fse.ensureDirSync(errorFolder);	
 	fs.writeFileSync(errorFile, data, 'base64');
 }
 
-function highlightTarget(action, data, color) {
-	let png,
-		targetPosition = action && action.target && action.target.position,
-		targetHeight,
-		targetWidth,
-		x,
-		y,
-		idx,
-		isValid = targetPosition && targetPosition.x >= 0  && targetPosition.y >= 0 && targetPosition.width && targetPosition.height;
-	
-	if (!isValid) {
-		return data;
-	}
-
-	png = PNG.sync.read(new Buffer(data, 'base64'));
-	targetHeight = Math.min(targetPosition.y + targetPosition.height, png.height);
-	targetWidth = Math.min(targetPosition.x +  targetPosition.width, png.width);
-	for (let y = targetPosition.y; y < targetHeight; y += 1) {
-		for (let x = targetPosition.x; x < targetWidth; x += 1) {
-			if (y > targetPosition.y && y < targetHeight - 1 && x > targetPosition.x && x < targetWidth - 1) {
-				continue;
-			}
-
-			idx = (png.width * y + x) << 2;
-			png.data[idx] = color[0];
-			png.data[idx+1] = color[1];
-			png.data[idx+2] = color[2];
-		}
-	}
-
-	return PNG.sync.write(png).toString('base64');
-}
-
 async function doScreenShot(action) {
-	let data;
-
 	await resetMouse();
-	data = await getScreenshotData(action);
+	let imgStr = await DriverWrapper.screenshot();
+	let data = await Pixel.getImgData(imgStr, action);
 	await compareImages(action, data);
-}
-
-async function getScreenshotData(action) {
-	let imgStr = await driver.takeScreenshot(),
-		base64Data = imgStr.replace(/^data:image\/png;base64,/, ''),
-		png,
-		regionPng;
-
-	if (action && action.x >= 0  && action.y >= 0 && action.width && action.height) {
-		png = PNG.sync.read(new Buffer(base64Data, 'base64'));
-		regionPng = new PNG({width: action.width, height: action.height});
-		PNG.bitblt(png, regionPng, action.x, action.y, action.width, action.height, 0, 0);
-		base64Data = PNG.sync.write(regionPng).toString('base64');
-	}
-
-	return base64Data;
 }
 
 function compareImages(action, base64Data) {
@@ -423,7 +281,7 @@ function compareImages(action, base64Data) {
 	fs.writeFileSync(currentFile, base64Data, 'base64');
 
 	return new Promise((resolve, reject) => {
-		resemble(baseFile).compareTo(currentFile).ignoreColors().onComplete(function (data) {
+		resemble(baseFile).compareTo(currentFile).ignoreColors().onComplete((data) => {
 			let isSuccess = Number(data.misMatchPercentage) <= 0.01;
 
 			log(screenshotMessage, isSuccess ? 'success' : 'error');
@@ -433,9 +291,7 @@ function compareImages(action, base64Data) {
 				resolve();
 			} else {
 				ws = fs.createWriteStream(diffFile);
-				ws.on('finish', function() {
-					resolve();
-				});
+				ws.on('finish', () => resolve());
 				data.getDiffImage().pack().pipe(ws);
 			}			
 		});
