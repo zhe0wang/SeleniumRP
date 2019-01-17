@@ -1,7 +1,7 @@
 {
     "name": "SeleniumRP",
     "description": "Record the user interactions, take screenshots",
-    "version": "0.5.0.0",
+    "version": "0.6.0.0",
     "manifest_version": 2,
     "icons": {
         "16": "icon.png",

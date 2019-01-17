@@ -295,7 +295,7 @@ module.exports = function (exec) {
             name: true,
             type: true
         },
-        uniqueCssPath: false
+        uniqueCssPath: true
     };
 
     window.automEvents = window.automEvents || {};

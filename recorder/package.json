@@ -1,6 +1,6 @@
 {
   "name": "recorder",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "SeleniumRP recorder",
   "scripts": {
     "dev": "./node_modules/.bin/webpack -w",
