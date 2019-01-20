@@ -6,6 +6,7 @@
             start: startAction,
             stop: stopAction,
             selecttarget: selectTargetAction,
+            highlight: highlightElement,
             updateconfig: updateConfig,
             updatestate: updateState,
             screenshot: screenshot
@@ -51,6 +52,10 @@
         window.automEvents.setSelectingType(state.selectingType);
     }
 
+    function highlightElement(cssPath) {
+        window.automEvents.highlightElement(cssPath);
+    }
+
     function updateConfig(config) {
         window.automEvents.updateConfig(config);
     }
@@ -93,6 +98,7 @@
 
         channel.postMessage({ stopRecording: true });
     }
+
     function createChannel() {
         channel = chrome.runtime.connect({ name: "automrecoder" });
 

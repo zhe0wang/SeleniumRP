@@ -2,7 +2,6 @@ import React from 'react';
 import UpdateStateAction from '../share/updateStateAction.js';
 import Chromer from '../../chromer.js';
 
-const uniqueSelectorKey = 'uniqueSelector';
 const selectorAttrsKey = 'selectorAttrs';
 const eventConfigKey = 'eventConfig';
 
@@ -33,20 +32,14 @@ const handleSumbit = (evt, appState) => {
     var formData,
         key,
         settings = {},
-        uniqueSelector,
         selectorAttrs,
         attrsConfig = {},
         eventConfig;
 
     evt.preventDefault();
     formData = new FormData(evt.target);
-    uniqueSelector = formData.get(uniqueSelectorKey);
     selectorAttrs = formData.get(selectorAttrsKey);
     eventConfig = formData.get(eventConfigKey);
-    if (uniqueSelector) {
-        settings.selectorConfig = settings.selectorConfig || {};
-        settings.selectorConfig.uniqueCssPath = true;
-    }
 
     if (selectorAttrs) {
         settings.selectorConfig = settings.selectorConfig || {};
@@ -76,7 +69,6 @@ const handleSumbit = (evt, appState) => {
 const SettingDialog = ({appState}) => {
     var localSetting = localStorage.getItem('settings'),
         settingConfig = localSetting ? JSON.parse(localSetting) : appState.settings,
-        uniqueSelector = (settingConfig.selectorConfig && settingConfig.selectorConfig.uniqueCssPath) || false,
         selectorAttrs = (settingConfig.selectorConfig && JSON.stringify(settingConfig.selectorConfig.attrsConfig, null, 4)) || '',
         eventConfig = (settingConfig.eventConfig && JSON.stringify(settingConfig.eventConfig)) || '';
 
@@ -85,7 +77,7 @@ const SettingDialog = ({appState}) => {
             <div className="i-dialog-content">
                 <div className="i-dialog-header">
                     <div className="i-dialog-title">Settings</div>
-                    <div className="i-dialog-close" onClick={onDialogCloseClick}>X</div>
+                    <div className="i-dialog-close" onClick={onDialogCloseClick}>&#10006;</div>
                 </div>
                 <form onSubmit={(evt) => handleSumbit(evt, appState)}>
                     <div className="i-dialog-content-center">
@@ -95,15 +87,7 @@ const SettingDialog = ({appState}) => {
                                     Selector attributes
                                 </div>
                                 <div className='i-dialog-column'>
-                                    <textarea name={selectorAttrsKey} defaultValue={selectorAttrs} ref={(i) => i && i.focus()} cols="50" rows="10"/>
-                                </div>
-                            </div>
-                            <div className="i-dialog-row">
-                                <div className='i-dialog-column i-dialog-label'>
-                                    Unique Css Selector
-                                </div>
-                                <div className='i-dialog-column'>
-                                    <input type="checkbox" name={uniqueSelectorKey} defaultChecked={uniqueSelector}></input>
+                                    <textarea name={selectorAttrsKey} defaultValue={selectorAttrs} ref={(i) => i && i.focus()} cols="50" rows="30"/>
                                 </div>
                             </div>
                             <div className="i-dialog-row i-hidden">

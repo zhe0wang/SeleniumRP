@@ -1,11 +1,11 @@
 (function () {
     var isTextInput = function (target) {
-            var tagName = target && target.tagName && target.tagName.toUpperCase();
-            if (!tagName) {
-                return false;
-            }
-            return tagName === 'TEXTAREA' || tagName === 'INPUT';
-        },
+        var tagName = target && target.tagName && target.tagName.toUpperCase();
+        if (!tagName) {
+            return false;
+        }
+        return tagName === 'TEXTAREA' || tagName === 'INPUT';
+    },
         events = {
             mouseenter: {
                 condition: function (evt) {
@@ -72,16 +72,33 @@
         },
         selectorConfig = {
             attrsConfig: {
-                    id: true,
-                    classList: true, 
-                    tagName: true, 
-                    target: true, 
-                    name: true, 
-                    type: true
+                id: {
+                    enabled: true,
+                    regex: null
                 },
-            uniqueCssPath: true
+                classList: {
+                    enabled: true,
+                    regex: null
+                },
+                tagName: {
+                    enabled: true,
+                    regex: null
+                },
+                target: {
+                    enabled: true,
+                    regex: null
+                },
+                name: {
+                    enabled: true,
+                    regex: null
+                },
+                type: {
+                    enabled: true,
+                    regex: null
+                }
+            }
         };
-        
+
     window.automEvents = window.automEvents || {};
     window.automEvents.eventConfig = events;
     window.automEvents.selectorConfig = selectorConfig;

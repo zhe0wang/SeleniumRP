@@ -1,6 +1,9 @@
 import React from 'react';
 import Pager from '../share/pager.js';
 import RemoveClientEventAction from './removeClientEventAction.js';
+import Chromer from '../../chromer.js';
+
+const highlightElement = (cssPath) => Chromer.sendMessage({action : 'highlight', value: cssPath});
 
 const ActionList = ({appState}) => {
     var selectedStep = appState.selectedStep,
@@ -44,10 +47,14 @@ const ActionList = ({appState}) => {
             <div className = 'i-event-table-wrapper'>
                 <div className={className}>
                     {rows.map((row) =>
-                        <div className='i-event-row' key={row.id}>
-                            <div className='i-event-item-remove' onClick={() => { RemoveClientEventAction.next(row.id) } }>X</div>
-                            {!toShowDetail ? <div className='i-event-item'>{row.type}</div> : <div className='i-event-item'>{JSON.stringify(row) }</div>}
-                        </div>) }
+                    {
+                        var cssPath = row.target && row.target.cssPath;
+                        var rowTitle = row.type + (cssPath ? ' - ' + cssPath : '');
+                        return (<div className='i-event-row' key={row.id}>
+                                    <div className='i-event-item-remove' onClick={() => { RemoveClientEventAction.next(row.id) } }>&#10006;</div>
+                                    {!toShowDetail ? <div className='i-event-item truncate-200' title ={rowTitle} onClick={() => {highlightElement(cssPath)}}>{rowTitle}</div> : <div className='i-event-item'>{JSON.stringify(row, null, 2)}</div>}
+                                </div>);
+                    })}
                 </div>
             </div>
             <Pager appState={appState} pageNoKey={'actionListPageNo'} total={filteredRows.length} pageSize={rowsToShow}/>

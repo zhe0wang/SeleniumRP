@@ -10,6 +10,13 @@ input[type='checkbox'] {
     vertical-align: middle;
 }
 
+.truncate-200 {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .i-icon {
     svg {
         fill: currentColor;
@@ -148,7 +155,7 @@ input[type='checkbox'] {
     border-radius: 3px;
     color: #ffffff;
     display: table-cell;
-    word-break: break-word;
+    white-space: pre;
 }
 
 .i-dialog {

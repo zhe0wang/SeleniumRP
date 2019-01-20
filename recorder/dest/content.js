@@ -94,6 +94,7 @@ module.exports = function (exec) {
         start: startAction,
         stop: stopAction,
         selecttarget: selectTargetAction,
+        highlight: highlightElement,
         updateconfig: updateConfig,
         updatestate: updateState,
         screenshot: screenshot
@@ -138,6 +139,10 @@ module.exports = function (exec) {
         window.automEvents.setSelectingType(state.selectingType);
     }
 
+    function highlightElement(cssPath) {
+        window.automEvents.highlightElement(cssPath);
+    }
+
     function updateConfig(config) {
         window.automEvents.updateConfig(config);
     }
@@ -180,6 +185,7 @@ module.exports = function (exec) {
 
         channel.postMessage({ stopRecording: true });
     }
+
     function createChannel() {
         channel = chrome.runtime.connect({ name: "automrecoder" });
 
@@ -288,14 +294,31 @@ module.exports = function (exec) {
         } },
         selectorConfig = {
         attrsConfig: {
-            id: true,
-            classList: true,
-            tagName: true,
-            target: true,
-            name: true,
-            type: true
-        },
-        uniqueCssPath: true
+            id: {
+                enabled: true,
+                regex: null
+            },
+            classList: {
+                enabled: true,
+                regex: null
+            },
+            tagName: {
+                enabled: true,
+                regex: null
+            },
+            target: {
+                enabled: true,
+                regex: null
+            },
+            name: {
+                enabled: true,
+                regex: null
+            },
+            type: {
+                enabled: true,
+                regex: null
+            }
+        }
     };
 
     window.automEvents = window.automEvents || {};
@@ -330,7 +353,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         events = automEvents.eventConfig,
         attrsConfig = automEvents.selectorConfig.attrsConfig,
         attrs,
-        uniqueCssPath = automEvents.selectorConfig.uniqueCssPath,
         commands = {
         sceenshot: {
             keys: []
@@ -405,10 +427,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         if (config.selectorConfig && config.selectorConfig.attrsConfig) {
             attrsConfig = config.selectorConfig.attrsConfig;
             initAttrs();
-        }
-
-        if (config.selectorConfig && config.selectorConfig.uniqueCssPath !== undefined) {
-            uniqueCssPath = config.selectorConfig.uniqueCssPath;
         }
     }
 
@@ -544,6 +562,36 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         updateState({ key: 'selectingType', value: null });
     }
 
+    function highlightElement(cssPath) {
+        var target = document.querySelector(cssPath);
+        if (!target) {
+            return;
+        }
+
+        var overLay = getSelectingOverlay();
+        var targetBox = target.getBoundingClientRect();
+        var position = getPosition(target);
+        var size = {
+            x: position.x,
+            y: position.y,
+            width: targetBox.width,
+            height: targetBox.height
+        };
+
+        overLay.style.border = '2px solid #FF5733';
+        overLay.style.top = size.y + 'px';
+        overLay.style.left = size.x + 'px';
+        overLay.style.width = size.width + 'px';
+        overLay.style.height = size.height + 'px';
+        overLay.style.display = 'block';
+
+        setTimeout(function () {
+            hideSelectingOverlay();
+            selectingType = null;
+            updateState({ key: 'selectingType', value: null });
+        }, 2000);
+    }
+
     function hideSelectingOverlay() {
         var overLay = getSelectingOverlay();
         overLay.style.display = 'none';
@@ -556,7 +604,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
             el = window.document.createElement('div');
             el.id = 'autom-select-target-overlay';
             el.style.display = 'none';
-            el.style.position = 'absolute';
+            el.style.position = 'fixed';
             el.style.width = '100px';
             el.style.border = '2px solid #FF5733';
             el.style.height = '100px';
@@ -697,7 +745,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
             parent,
             isUnique;
 
-        if (!uniqueCssPath || isUniqueSelector(currentCssPath)) {
+        if (isUniqueSelector(currentCssPath)) {
             return currentCssPath;
         }
 
@@ -837,6 +885,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         startListening: startListening,
         toggleRecording: toggleRecording,
         setSelectingType: setSelectingType,
+        highlightElement: highlightElement,
         updateConfig: updateConfig,
         setUpdateStateHandler: setUpdateStateHandler
     };

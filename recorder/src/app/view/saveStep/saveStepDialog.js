@@ -60,7 +60,7 @@ const SaveStepDialog = ({appState}) => {
             <div className="i-dialog-content">
                 <div className="i-dialog-header">
                     <div className="i-dialog-title">Save Step</div>
-                    <div className="i-dialog-close" onClick={onDialogCloseClick}>X</div>
+                    <div className="i-dialog-close" onClick={onDialogCloseClick}>&#10006;</div>
                 </div>
                 <form onSubmit={(evt) => handleSumbit(evt, appState)}>
                     <div className="i-dialog-content-center">

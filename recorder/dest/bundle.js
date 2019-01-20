@@ -10258,14 +10258,31 @@ var _state = {
     settings: {
         selectorConfig: {
             attrsConfig: {
-                id: true,
-                tagName: true,
-                classList: true,
-                target: true,
-                name: true,
-                type: true
-            },
-            uniqueCssPath: false
+                id: {
+                    enabled: true,
+                    regex: null
+                },
+                classList: {
+                    enabled: true,
+                    regex: null
+                },
+                tagName: {
+                    enabled: true,
+                    regex: null
+                },
+                target: {
+                    enabled: true,
+                    regex: null
+                },
+                name: {
+                    enabled: true,
+                    regex: null
+                },
+                type: {
+                    enabled: true,
+                    regex: null
+                }
+            }
         }
     }
 },
@@ -16581,7 +16598,15 @@ var _removeClientEventAction = __webpack_require__(201);
 
 var _removeClientEventAction2 = _interopRequireDefault(_removeClientEventAction);
 
+var _chromer = __webpack_require__(55);
+
+var _chromer2 = _interopRequireDefault(_chromer);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var highlightElement = function highlightElement(cssPath) {
+    return _chromer2.default.sendMessage({ action: 'highlight', value: cssPath });
+};
 
 var ActionList = function ActionList(_ref) {
     var appState = _ref.appState;
@@ -16635,6 +16660,8 @@ var ActionList = function ActionList(_ref) {
                 'div',
                 { className: className },
                 rows.map(function (row) {
+                    var cssPath = row.target && row.target.cssPath;
+                    var rowTitle = row.type + (cssPath ? ' - ' + cssPath : '');
                     return _react2.default.createElement(
                         'div',
                         { className: 'i-event-row', key: row.id },
@@ -16643,16 +16670,18 @@ var ActionList = function ActionList(_ref) {
                             { className: 'i-event-item-remove', onClick: function onClick() {
                                     _removeClientEventAction2.default.next(row.id);
                                 } },
-                            'X'
+                            '\u2716'
                         ),
                         !toShowDetail ? _react2.default.createElement(
                             'div',
-                            { className: 'i-event-item' },
-                            row.type
+                            { className: 'i-event-item truncate-200', title: rowTitle, onClick: function onClick() {
+                                    highlightElement(cssPath);
+                                } },
+                            rowTitle
                         ) : _react2.default.createElement(
                             'div',
                             { className: 'i-event-item' },
-                            (0, _stringify2.default)(row)
+                            (0, _stringify2.default)(row, null, 2)
                         )
                     );
                 })
@@ -17187,7 +17216,7 @@ var SavedSteps = function SavedSteps(_ref) {
 
                             _RemoveStepAction2.default.next(step);
                         } },
-                    'X'
+                    '\u2716'
                 ),
                 step
             );
@@ -17347,7 +17376,7 @@ var SaveStepDialog = function SaveStepDialog(_ref) {
                 _react2.default.createElement(
                     'div',
                     { className: 'i-dialog-close', onClick: onDialogCloseClick },
-                    'X'
+                    '\u2716'
                 )
             ),
             _react2.default.createElement(
@@ -17447,7 +17476,6 @@ var _chromer2 = _interopRequireDefault(_chromer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var uniqueSelectorKey = 'uniqueSelector';
 var selectorAttrsKey = 'selectorAttrs';
 var eventConfigKey = 'eventConfig';
 
@@ -17478,20 +17506,14 @@ var handleSumbit = function handleSumbit(evt, appState) {
     var formData,
         key,
         settings = {},
-        uniqueSelector,
         selectorAttrs,
         attrsConfig = {},
         eventConfig;
 
     evt.preventDefault();
     formData = new FormData(evt.target);
-    uniqueSelector = formData.get(uniqueSelectorKey);
     selectorAttrs = formData.get(selectorAttrsKey);
     eventConfig = formData.get(eventConfigKey);
-    if (uniqueSelector) {
-        settings.selectorConfig = settings.selectorConfig || {};
-        settings.selectorConfig.uniqueCssPath = true;
-    }
 
     if (selectorAttrs) {
         settings.selectorConfig = settings.selectorConfig || {};
@@ -17523,7 +17545,6 @@ var SettingDialog = function SettingDialog(_ref) {
 
     var localSetting = localStorage.getItem('settings'),
         settingConfig = localSetting ? JSON.parse(localSetting) : appState.settings,
-        uniqueSelector = settingConfig.selectorConfig && settingConfig.selectorConfig.uniqueCssPath || false,
         selectorAttrs = settingConfig.selectorConfig && (0, _stringify2.default)(settingConfig.selectorConfig.attrsConfig, null, 4) || '',
         eventConfig = settingConfig.eventConfig && (0, _stringify2.default)(settingConfig.eventConfig) || '';
 
@@ -17544,7 +17565,7 @@ var SettingDialog = function SettingDialog(_ref) {
                 _react2.default.createElement(
                     'div',
                     { className: 'i-dialog-close', onClick: onDialogCloseClick },
-                    'X'
+                    '\u2716'
                 )
             ),
             _react2.default.createElement(
@@ -17571,21 +17592,7 @@ var SettingDialog = function SettingDialog(_ref) {
                                 { className: 'i-dialog-column' },
                                 _react2.default.createElement('textarea', { name: selectorAttrsKey, defaultValue: selectorAttrs, ref: function ref(i) {
                                         return i && i.focus();
-                                    }, cols: '50', rows: '10' })
-                            )
-                        ),
-                        _react2.default.createElement(
-                            'div',
-                            { className: 'i-dialog-row' },
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'i-dialog-column i-dialog-label' },
-                                'Unique Css Selector'
-                            ),
-                            _react2.default.createElement(
-                                'div',
-                                { className: 'i-dialog-column' },
-                                _react2.default.createElement('input', { type: 'checkbox', name: uniqueSelectorKey, defaultChecked: uniqueSelector })
+                                    }, cols: '50', rows: '30' })
                             )
                         ),
                         _react2.default.createElement(
@@ -17865,7 +17872,7 @@ exports = module.exports = __webpack_require__(215)();
 
 
 // module
-exports.push([module.i, "body {\n  font: 100% Helvetica, sans-serif; }\n\ninput[type='checkbox'] {\n  height: 18px;\n  width: 18px;\n  vertical-align: middle; }\n\n.i-icon svg {\n  fill: currentColor; }\n\n.i-hidden {\n  display: none !important; }\n\n.i-pager .i-pager-page-no {\n  text-align: center;\n  height: 30px;\n  margin: 0 10px;\n  display: inline-block; }\n\n.i-pager button {\n  height: 40px;\n  width: 40px;\n  border-radius: 20px; }\n\n.i-steps {\n  float: left;\n  width: 100px;\n  padding: 0 5px; }\n\n.i-steps-title {\n  margin: 8px 0;\n  font-weight: bold; }\n\n.i-steps-item {\n  cursor: pointer;\n  margin: 3px 0;\n  padding: 5px 8px;\n  background-color: coral;\n  border-radius: 3px;\n  color: #ffffff;\n  word-break: break-word; }\n  .i-steps-item.i-steps-item-selected {\n    background-color: gold;\n    color: black; }\n\n.i-steps-item-remove {\n  cursor: pointer;\n  display: inline;\n  padding-right: 8px; }\n\n.i-actions {\n  margin-bottom: 20px; }\n  .i-actions button {\n    margin: 5px 8px;\n    width: 100px;\n    height: 30px;\n    vertical-align: middle; }\n  .i-actions button.i-action-setting {\n    width: 45px;\n    float: right; }\n  .i-actions form {\n    margin-left: 25px;\n    display: inline; }\n    .i-actions form input {\n      height: 30px; }\n\n.i-events {\n  margin-left: 120px;\n  min-width: 500px;\n  max-width: calc(100% - 125px);\n  padding: 5px; }\n\n.i-event-table-wrapper {\n  height: calc(100% - 150px);\n  overflow: auto; }\n\n.i-event-filter-table {\n  display: table;\n  height: 35px; }\n\n.i-event-filter-column {\n  display: table-cell; }\n\n.i-event-show-detail {\n  height: 18px;\n  width: 18px;\n  vertical-align: middle;\n  margin-right: 20px; }\n\n.i-event-filter-input {\n  height: 25px;\n  width: 250px; }\n\n.i-event-table {\n  display: table;\n  border-collapse: separate;\n  border-spacing: 10px; }\n\n.i-event-row {\n  display: table-row; }\n\n.i-event-item-remove {\n  cursor: pointer;\n  display: table-cell;\n  color: lightslategray;\n  width: 30px; }\n\n.i-event-selected-step .i-event-item {\n  background-color: gold;\n  color: black; }\n\n.i-event-item {\n  padding: 5px 8px;\n  background-color: forestgreen;\n  border-radius: 3px;\n  color: #ffffff;\n  display: table-cell;\n  word-break: break-word; }\n\n.i-dialog {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(169, 169, 169, 0.7); }\n\n.i-dialog-content {\n  width: 70%;\n  height: 80%;\n  margin: 5% auto;\n  background-color: white;\n  padding: 12px; }\n\n.i-dialog-header {\n  height: 40px; }\n\n.i-dialog-title {\n  font-size: 16px;\n  font-weight: bold;\n  float: left; }\n\n.i-dialog-close {\n  float: right;\n  cursor: pointer; }\n\n.i-dialog-table {\n  display: table;\n  height: 35px; }\n\n.i-dialog-row {\n  display: table-row; }\n\n.i-dialog-column {\n  display: table-cell;\n  padding: 5px 8px;\n  vertical-align: top; }\n  .i-dialog-column input[type='text'] {\n    width: 371px;\n    height: 30px; }\n\n.i-dialog-label {\n  width: 160px; }\n\n.i-dialog-footer {\n  height: 50px;\n  text-align: right; }\n  .i-dialog-footer button {\n    margin-left: 8px;\n    height: 30px;\n    width: 80px; }\n\n.i-dialog-content-center {\n  height: calc(100% - 90px);\n  overflow: auto; }\n\n.i-screenshot-wrapper {\n  display: inline-block;\n  border: 1px solid #cccccc;\n  line-height: 40px; }\n", ""]);
+exports.push([module.i, "body {\n  font: 100% Helvetica, sans-serif; }\n\ninput[type='checkbox'] {\n  height: 18px;\n  width: 18px;\n  vertical-align: middle; }\n\n.truncate-200 {\n  max-width: 200px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis; }\n\n.i-icon svg {\n  fill: currentColor; }\n\n.i-hidden {\n  display: none !important; }\n\n.i-pager .i-pager-page-no {\n  text-align: center;\n  height: 30px;\n  margin: 0 10px;\n  display: inline-block; }\n\n.i-pager button {\n  height: 40px;\n  width: 40px;\n  border-radius: 20px; }\n\n.i-steps {\n  float: left;\n  width: 100px;\n  padding: 0 5px; }\n\n.i-steps-title {\n  margin: 8px 0;\n  font-weight: bold; }\n\n.i-steps-item {\n  cursor: pointer;\n  margin: 3px 0;\n  padding: 5px 8px;\n  background-color: coral;\n  border-radius: 3px;\n  color: #ffffff;\n  word-break: break-word; }\n  .i-steps-item.i-steps-item-selected {\n    background-color: gold;\n    color: black; }\n\n.i-steps-item-remove {\n  cursor: pointer;\n  display: inline;\n  padding-right: 8px; }\n\n.i-actions {\n  margin-bottom: 20px; }\n  .i-actions button {\n    margin: 5px 8px;\n    width: 100px;\n    height: 30px;\n    vertical-align: middle; }\n  .i-actions button.i-action-setting {\n    width: 45px;\n    float: right; }\n  .i-actions form {\n    margin-left: 25px;\n    display: inline; }\n    .i-actions form input {\n      height: 30px; }\n\n.i-events {\n  margin-left: 120px;\n  min-width: 500px;\n  max-width: calc(100% - 125px);\n  padding: 5px; }\n\n.i-event-table-wrapper {\n  height: calc(100% - 150px);\n  overflow: auto; }\n\n.i-event-filter-table {\n  display: table;\n  height: 35px; }\n\n.i-event-filter-column {\n  display: table-cell; }\n\n.i-event-show-detail {\n  height: 18px;\n  width: 18px;\n  vertical-align: middle;\n  margin-right: 20px; }\n\n.i-event-filter-input {\n  height: 25px;\n  width: 250px; }\n\n.i-event-table {\n  display: table;\n  border-collapse: separate;\n  border-spacing: 10px; }\n\n.i-event-row {\n  display: table-row; }\n\n.i-event-item-remove {\n  cursor: pointer;\n  display: table-cell;\n  color: lightslategray;\n  width: 30px; }\n\n.i-event-selected-step .i-event-item {\n  background-color: gold;\n  color: black; }\n\n.i-event-item {\n  padding: 5px 8px;\n  background-color: forestgreen;\n  border-radius: 3px;\n  color: #ffffff;\n  display: table-cell;\n  white-space: pre; }\n\n.i-dialog {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background-color: rgba(169, 169, 169, 0.7); }\n\n.i-dialog-content {\n  width: 70%;\n  height: 80%;\n  margin: 5% auto;\n  background-color: white;\n  padding: 12px; }\n\n.i-dialog-header {\n  height: 40px; }\n\n.i-dialog-title {\n  font-size: 16px;\n  font-weight: bold;\n  float: left; }\n\n.i-dialog-close {\n  float: right;\n  cursor: pointer; }\n\n.i-dialog-table {\n  display: table;\n  height: 35px; }\n\n.i-dialog-row {\n  display: table-row; }\n\n.i-dialog-column {\n  display: table-cell;\n  padding: 5px 8px;\n  vertical-align: top; }\n  .i-dialog-column input[type='text'] {\n    width: 371px;\n    height: 30px; }\n\n.i-dialog-label {\n  width: 160px; }\n\n.i-dialog-footer {\n  height: 50px;\n  text-align: right; }\n  .i-dialog-footer button {\n    margin-left: 8px;\n    height: 30px;\n    width: 80px; }\n\n.i-dialog-content-center {\n  height: calc(100% - 90px);\n  overflow: auto; }\n\n.i-screenshot-wrapper {\n  display: inline-block;\n  border: 1px solid #cccccc;\n  line-height: 40px; }\n", ""]);
 
 // exports
 
