@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
-var nodeEnv = process.env.NODE_ENV || 'development'; 
+var nodeEnv = process.env.NODE_ENV || 'development';
 const isProd = nodeEnv === 'production';
 var plugins = [
     // new webpack.optimize.CommonsChunkPlugin({
@@ -46,7 +46,7 @@ module.exports = {
     context: path.join(__dirname, './src'),
     entry: {
         bundle: './app/main.js',
-        content: ['./content/eventConfig.js', './content/events.js', './content/content.js'] ,
+        content: ['./content/eventConfig.js', './content/events.js', './content/content.js'],
         background: './background.js'
         //,
         // vendor: [
@@ -65,37 +65,39 @@ module.exports = {
         filename: '[name].js'
     },
     module: {
-        loaders: [
-          {
-              test: /\.html$|\.png$/,
-              loader: 'file',
-              query: {
-                  name: '[name].[ext]'
-              }
-          },
-          {
-              test: /\.scss$/,
-              loaders: ["style", "css", "sass"]
-          },
-          {
-              test: /\.(js|jsx)$/,
-              exclude: /node_modules/,
-              loaders: [
-                // 'react-hot',
-                'babel-loader'
-              ]
-          },
-          {
-              test: /\.svg$/,
-              loader: 'svg-inline'
-          }
+        rules: [
+            {
+                test: /\.html$|\.png$/,
+                use: [{
+                    loader: 'file-loader',
+                    query: {
+                        name: '[name].[ext]'
+                    }
+                }]
+            },
+            {
+                test: /\.scss$/,
+                use: ["style-loader", "css-loader", "sass-loader"]
+            },
+            {
+                test: /\.(js|jsx)$/,
+                exclude: /node_modules/,
+                use: [
+                    // 'react-hot',
+                    'babel-loader'
+                ]
+            },
+            {
+                test: /\.svg$/,
+                use: 'svg-inline-loader'
+            }
         ]
     },
     resolve: {
-        extensions: ['', '.js', '.jsx'],
+        extensions: ['.js', '.jsx'],
         modules: [
-          path.resolve('./src'),
-          'node_modules'
+            path.resolve('./src'),
+            'node_modules'
         ]
     },
     plugins: plugins

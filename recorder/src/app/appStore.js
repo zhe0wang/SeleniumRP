@@ -13,27 +13,33 @@ var _state = {
             attrsConfig: {
                 id: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 },
                 classList: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 },
                 tagName: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 },
                 target: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 },
                 name: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 },
                 type: {
                     enabled: true,
-                    regex: null
+                    include: null,
+                    exclude: null,
                 }
             }
         }

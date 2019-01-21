@@ -45,10 +45,12 @@
     function initAttrs() {
         attrs = [];
         Object.keys(attrsConfig).forEach((key) => {
-            if (attrsConfig[key]) {
+            if (attrsConfig[key] && attrsConfig[key].enabled) {
                 attrs.push(key);
             }
         });
+        
+        var attrsBack = attrs;
     }
 
     function toggleRecording(toStart) {
@@ -347,12 +349,8 @@
     }
 
     function getEventTarget(target, includeText) {
-        var props = attrs.concat(['id', 'classList', 'tagName', 'textContent', 'value']),
-            eventTarget = {
-                cssPath: ''
-            },
-            cssPath,
-            position;
+        var props = attrs.concat(['textContent', 'value']),
+            eventTarget = {};
 
         if (!target) {
             return null;
@@ -372,15 +370,12 @@
         }
 
         eventTarget.position = getPosition(target);
-        cssPath = getCssPath(target);
-        if (cssPath) {
-            eventTarget.cssPath = cssPath
-        }
+        eventTarget.cssPath = getCssPath(target);
 
         return eventTarget;
     }
 
-    function addProp(source, key, dest, destKey) {
+    function addProp(source, key, dest) {
         var value = source[key];
         if (value && value.length) {
             dest[key] = value;
@@ -508,7 +503,14 @@
             return cssPath;            
         }
 
-        return cssPath + '.' + matchValues.join('.');
+        matchValues.forEach((css) => {
+            cssPath += '.' + css;
+            if (isUniqueSelector(cssPath)) {
+                return cssPath;
+            }
+        });
+
+        return cssPath;
     }    
 
     function isUniqueSelector(cssPath, parent) {
