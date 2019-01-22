@@ -15,7 +15,6 @@ const Utility = {
             file;
 
         file = new Blob([content], {type: 'data:text/plain;charset=utf-8'});
-
         a.href = URL.createObjectURL(file);
         a.download = fileName;
         a.click();

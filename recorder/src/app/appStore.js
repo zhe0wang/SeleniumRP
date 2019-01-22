@@ -42,7 +42,8 @@ var _state = {
                     exclude: null,
                 }
             }
-        }
+        },
+        groupScroll: true
     }
 },
     _updater = new Subject(),

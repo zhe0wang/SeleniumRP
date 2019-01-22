@@ -1,7 +1,8 @@
 (function () {
     var automEvents = window.automEvents,
         events = automEvents.eventConfig,
-        attrsConfig = automEvents.selectorConfig.attrsConfig,
+        setting,
+        attrsConfig,
         attrs,
         commands = {
             sceenshot: {
@@ -29,7 +30,6 @@
 
     function startListening(cb) {
         eventCb = cb;
-        initAttrs();
 
         Object.keys(events).forEach(function (event) {
             var eventConfig = events[event];
@@ -42,15 +42,17 @@
         window.addEventListener('click', onSelectingClick, true);
     }
 
-    function initAttrs() {
+    function initAttrs(attrsConfig) {
         attrs = [];
+        if (!attrsConfig) {
+            return;
+        }
+        
         Object.keys(attrsConfig).forEach((key) => {
             if (attrsConfig[key] && attrsConfig[key].enabled) {
                 attrs.push(key);
             }
         });
-        
-        var attrsBack = attrs;
     }
 
     function toggleRecording(toStart) {
@@ -76,9 +78,10 @@
 
     function updateConfig(config) {
         console.log('update config: ' + JSON.stringify(config));
+        setting = config;
         if (config.selectorConfig && config.selectorConfig.attrsConfig) {
             attrsConfig = config.selectorConfig.attrsConfig;
-            initAttrs();
+            initAttrs(attrsConfig);
         }
     }
 

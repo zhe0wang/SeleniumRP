@@ -2,7 +2,7 @@ import React from 'react';
 import UpdateStateAction from '../share/updateStateAction.js';
 import Chromer from '../../chromer.js';
 
-const selectorAttrsKey = 'selectorAttrs';
+const settingKey = 'setting';
 const eventConfigKey = 'eventConfig';
 
 const closeDialog = () => {
@@ -31,19 +31,17 @@ const oncCancelClick = () => {
 const handleSumbit = (evt, appState) => {
     var formData,
         key,
-        settings = {},
-        selectorAttrs,
+        settings,
         attrsConfig = {},
         eventConfig;
 
     evt.preventDefault();
     formData = new FormData(evt.target);
-    selectorAttrs = formData.get(selectorAttrsKey);
+    settings = formData.get(settingKey);
     eventConfig = formData.get(eventConfigKey);
 
-    if (selectorAttrs) {
-        settings.selectorConfig = settings.selectorConfig || {};
-        settings.selectorConfig.attrsConfig = JSON.parse(selectorAttrs);
+    if (settings) {
+        settings = JSON.parse(settings);
     }
 
     if (eventConfig) {
@@ -69,8 +67,7 @@ const handleSumbit = (evt, appState) => {
 const SettingDialog = ({appState}) => {
     var localSetting = localStorage.getItem('settings'),
         settingConfig = localSetting ? JSON.parse(localSetting) : appState.settings,
-        selectorAttrs = (settingConfig.selectorConfig && JSON.stringify(settingConfig.selectorConfig.attrsConfig, null, 4)) || '',
-        eventConfig = (settingConfig.eventConfig && JSON.stringify(settingConfig.eventConfig)) || '';
+        settingStr = (settingConfig && JSON.stringify(settingConfig, null, 4)) || '';
 
     return (
         <div tabIndex="0" className={appState.toShowSettingDialog ? "i-dialog" : "i-dialog i-hidden"} onKeyDown={onDialogKeyDown}>
@@ -84,10 +81,10 @@ const SettingDialog = ({appState}) => {
                         <div className='i-dialog-table'>
                             <div className="i-dialog-row">
                                 <div className='i-dialog-column i-dialog-label'>
-                                    Selector attributes
+                                    Config
                                 </div>
                                 <div className='i-dialog-column'>
-                                    <textarea name={selectorAttrsKey} defaultValue={selectorAttrs} ref={(i) => i && i.focus()} cols="50" rows="30"/>
+                                    <textarea name={settingKey} defaultValue={settingStr} ref={(i) => i && i.focus()} cols="50" rows="30"/>
                                 </div>
                             </div>
                             <div className="i-dialog-row i-hidden">

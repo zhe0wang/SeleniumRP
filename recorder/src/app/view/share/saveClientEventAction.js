@@ -5,6 +5,7 @@ var SaveClientEventAction = new Action.Subject();
 var actionTypeMap = {
         dblclick: getDblClickClientActions,
         keyup: getKeyUpClientActions,
+        scroll: getScrollActions,
     };
 
 function isSameTarget(action1, action2) {
@@ -62,6 +63,21 @@ function getKeyUpClientActions (actions, action) {
     return { $set: clientActions };
 }
 
+function getScrollActions(actions, action, state) {
+    var lastAction = actions && actions[actions.length - 1],
+        isSame = isSameTarget(lastAction, action),
+        clientActions;
+
+    if (!state.settings.groupScroll || !lastAction || !isSame || lastAction.type !== 'scroll') {
+        return null;
+    }
+
+    clientActions = actions.slice(0, actions.length);
+    clientActions.pop();
+    clientActions.push(action);
+    return { $set: clientActions };
+}
+
 function reducerCreator(clientAction) {
     return function saveClientEventReducer(state) {
         var screenIndex,
@@ -91,7 +107,7 @@ function reducerCreator(clientAction) {
                 screenIndex: {$set: screenIndex}
             };
 
-            updateState.clientActions = (actionTypeMap[clientAction.type] && actionTypeMap[clientAction.type](currentActions, clientAction)) || { $push: [clientAction] };
+            updateState.clientActions = (actionTypeMap[clientAction.type] && actionTypeMap[clientAction.type](currentActions, clientAction, state)) || { $push: [clientAction] };
             return Action.update(state, updateState);
         }
 

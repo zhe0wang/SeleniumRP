@@ -69,43 +69,8 @@
             // mouseup: {
             //     props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which']
             // }
-        },
-        selectorConfig = {
-            attrsConfig: {
-                id: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                },
-                classList: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                },
-                tagName: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                },
-                target: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                },
-                name: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                },
-                type: {
-                    enabled: true,
-                    include: null,
-                    exclude: null,
-                }
-            }
         };
 
     window.automEvents = window.automEvents || {};
     window.automEvents.eventConfig = events;
-    window.automEvents.selectorConfig = selectorConfig;
 })();
