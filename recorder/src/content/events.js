@@ -119,6 +119,7 @@
             }
             
             overLay.style.border = '2px solid #FF5733';
+            overLay.style.position  = 'absolute';
         } else {
             if (isMouseDown && regionStart){
                 size = {
@@ -136,6 +137,7 @@
                 }
             }
             
+            overLay.style.position  = 'fixed';
             overLay.style.borderTop = size.y + 'px solid';
             overLay.style.borderLeft = size.x + 'px solid';
             overLay.style.borderRight = (window.innerWidth - size.x - size.width) + 'px solid';            
@@ -260,7 +262,7 @@
             el = window.document.createElement('div');
             el.id = 'autom-select-target-overlay';
             el.style.display = 'none';
-            el.style.position = 'fixed';
+            el.style.position = 'absolute';
             el.style.width = '100px';
             el.style.border = '2px solid #FF5733';
             el.style.height = '100px';
