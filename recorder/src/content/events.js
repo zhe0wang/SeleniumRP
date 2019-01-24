@@ -1,26 +1,10 @@
 (function () {
     var automEvents = window.automEvents,
         events = automEvents.eventConfig,
-        setting,
-        attrsConfig,
         attrs,
-        commands = {
-            sceenshot: {
-                keys: []
-            },
-            verifytarget: {
-                keys: []
-            }
-        },
-        attrBuilderMap = {
-            'id': buildIdPath,
-            'tagName': buildTagPath,
-            'classList': buildClassPath
-        },
         eventCb,
         recording,
         selectingType = null,
-        isScreenshot,
         selectTargetOverlay,
         regionStart,
         isMouseDown = false,
@@ -40,19 +24,6 @@
         window.addEventListener('mousedown', onSelectingMouseDown, true);
         window.addEventListener('mouseup', onSelectingMouseUp, true);
         window.addEventListener('click', onSelectingClick, true);
-    }
-
-    function initAttrs(attrsConfig) {
-        attrs = [];
-        if (!attrsConfig) {
-            return;
-        }
-        
-        Object.keys(attrsConfig).forEach((key) => {
-            if (attrsConfig[key] && attrsConfig[key].enabled) {
-                attrs.push(key);
-            }
-        });
     }
 
     function toggleRecording(toStart) {
@@ -77,11 +48,18 @@
     }
 
     function updateConfig(config) {
+        var attrsConfig;
         console.log('update config: ' + JSON.stringify(config));
-        setting = config;
         if (config.selectorConfig && config.selectorConfig.attrsConfig) {
             attrsConfig = config.selectorConfig.attrsConfig;
-            initAttrs(attrsConfig);
+            attrs = [];            
+            Object.keys(attrsConfig).forEach((key) => {
+                if (attrsConfig[key] && attrsConfig[key].enabled) {
+                    attrs.push(key);
+                }
+            });
+            
+            window.automEvents.cssPathBuilder.updateAttrsConfig(attrsConfig, attrs);
         }
     }
 
@@ -183,8 +161,6 @@
     }
 
     function onSelectingMouseUp(evt) {
-        var eventMessage;
-
         if (!selectingType || !isInRange(evt)) {
             return;
         } 
@@ -206,8 +182,6 @@
     }
 
     function onSelectingClick(evt) {
-        var overLay;
-
         if (!selectingType) {
             return;
         }
@@ -313,8 +287,7 @@
         var type = evt.type,
             message = { type: type },
             eventConfig = events[type],
-            target = getEventTarget(evt.target),
-            targetValue;
+            target = getEventTarget(evt.target);
 
         if (eventConfig) {
             if (eventConfig.condition && !eventConfig.condition(evt)) {
@@ -375,7 +348,7 @@
         }
 
         eventTarget.position = getPosition(target);
-        eventTarget.cssPath = getCssPath(target);
+        eventTarget.cssPath = window.automEvents.cssPathBuilder.builderCssPath(target);
 
         return eventTarget;
     }
@@ -387,146 +360,7 @@
         }
     }
 
-    function getCssPath(target) {
-        var currentTarget = target,
-            currentCssPath = buildCssPath(currentTarget),
-            cssPath,
-            els,
-            nth,
-            parent,
-            isUnique;
-
-        if (isUniqueSelector(currentCssPath)) {
-            return currentCssPath;
-        }
-
-        parent = currentTarget.parentNode;            
-        while (!isUnique && parent !== null) {
-            els = parent.querySelectorAll(currentCssPath);
-            if (els.length > 1) {
-                nth = Array.prototype.indexOf.call(els, currentTarget);
-                if (nth > -1) {
-                    currentCssPath += ':nth-child(' + (nth + 1) + ')';
-                }
-            }
-            
-            if (currentCssPath !== cssPath) {
-                cssPath = cssPath ? currentCssPath + ' ' + cssPath : currentCssPath;
-            }
-            currentTarget = parent;            
-            currentCssPath = buildCssPath(currentTarget);
-            isUnique = isUniqueSelector(cssPath);
-            parent = currentTarget.parentNode;
-        }
-
-        return cssPath;
-    }
-
-    function buildCssPath(target) {
-        var cssPath = '',
-            pathBuilder,
-            attr,
-            attrConfig,
-            attrValue,
-            matchValues,
-            i,
-            len = attrs.length;
-
-        for (i = 0; i < len; i += 1) {
-            attr = attrs[i];
-            attrValue = target[attr];
-            if (!attrValue) {
-                continue;
-            }
-            
-            attrConfig = attrsConfig[attr];
-            pathBuilder = attrBuilderMap[attr];
-            if (pathBuilder) {
-                cssPath = pathBuilder(target, cssPath, attrConfig);    
-            } else {
-                matchValues = matches(attrConfig, [attrValue]);
-                if (matchValues.length) {
-                    cssPath += '[' + attr + '="' + matchValues[0] +'"]';
-                }
-            }
-
-            if (isUniqueSelector(cssPath)) {
-                return cssPath;
-            }
-        }
-
-        return cssPath;
-    }
-
-    function matches(config, values) {
-        var resultMap = {},
-            includeRegex,
-            excludeRegex;
-
-        if (!config) {
-            return [];
-        }
-
-        if (!config.include && !config.exclude) {
-            return values;
-        }
-
-        includeRegex = config.include ? new RegExp(config.include) : null;
-        excludeRegex = config.exclude ? new RegExp(config.exclude) : null;
-        values.forEach(function(value) {
-            if (value && (!includeRegex || includeRegex.test(value)) && (!excludeRegex || !excludeRegex.test(value))) {
-                resultMap[value] = 1;
-            }
-        });
-
-        return Object.keys(resultMap);
-    }
-
-    function buildIdPath(target, cssPath, attrConfig) {
-        var id = target.id,
-            matchValues = matches(attrConfig, [id]);
-        if (!matchValues.length) {
-            return cssPath;
-        }
-
-        return cssPath + '#' + matchValues[0];
-    }
-
-    function buildTagPath(target, cssPath, attrConfig) {
-        var tagName = target.tagName,
-            matchValues = matches(attrConfig, [tagName]);
-        if (!matchValues.length) {
-            return cssPath;
-        }
-
-        return matchValues[0] + cssPath;
-    }
-    
-    function buildClassPath (target, cssPath, attrConfig) {
-        var matchValues = matches(attrConfig, Array.prototype.slice.call(target.classList));
-        if (!matchValues.length) {
-            return cssPath;            
-        }
-
-        matchValues.forEach((css) => {
-            cssPath += '.' + css;
-            if (isUniqueSelector(cssPath)) {
-                return cssPath;
-            }
-        });
-
-        return cssPath;
-    }    
-
-    function isUniqueSelector(cssPath, parent) {
-        if (!cssPath) {
-            return false;
-        }
-
-        parent = parent || window.document;
-        return window.document.querySelectorAll(cssPath).length === 1;
-    }
-
+   
     function getPosition(el) {
         var elPosition = el.getBoundingClientRect && el.getBoundingClientRect();
 

@@ -46,7 +46,7 @@ module.exports = {
     context: path.join(__dirname, './src'),
     entry: {
         bundle: './app/main.js',
-        content: ['./content/eventConfig.js', './content/events.js', './content/content.js'],
+        content: ['./content/cssPathBuilder.js', './content/eventConfig.js', './content/events.js', './content/content.js'],
         background: './background.js'
         //,
         // vendor: [
