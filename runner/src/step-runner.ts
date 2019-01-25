@@ -56,7 +56,7 @@ async function runTest(testName, steps, testChannel) {
 	currentTestResult = true;
 	currentTestName = testName;
 	channel = testChannel;
-	await DriverWrapper.init();
+	await DriverWrapper.init(log);
 
 	logResult('Start', null, true);
 	for(i = 0; i < len; i +=1) {

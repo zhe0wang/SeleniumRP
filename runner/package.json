@@ -10,6 +10,7 @@
   ],
   "dependencies": {
     "chalk": "2.4.2",
+    "chromedriver": "2.45.0",
     "fs-extra": "7.0.1",
     "node-resemble-js": "0.2.0",
     "node-trx": "0.8.0",

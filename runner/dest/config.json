@@ -24,5 +24,6 @@
     },
     "closeOnFinish": true,
     "exclude": [],
-    "batchSize": 0
+    "batchSize": 0,
+    "headless": false
 }

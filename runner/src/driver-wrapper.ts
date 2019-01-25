@@ -1,5 +1,6 @@
 import { Builder, By, Capabilities } from 'selenium-webdriver';
 import Config from './config.json';
+import chromedriver from 'chromedriver';
 
 let driver;
 let isIE = Config.brower === 'internet explorer';
@@ -7,13 +8,15 @@ let browserMargin = {
     x: 0,
     y: 0
 };
+let logger;
 
-async function init() {
+async function init(logFunc) {
     let builder = new Builder().forBrowser(Config.brower),
         capabilities,
         width = Config.windowSize.width || 800,
         height = Config.windowSize.height || 600;
 
+    logger = logFunc;
     if (Config.serverUrl) {
         builder.usingServer(Config.serverUrl);
     }
@@ -23,6 +26,14 @@ async function init() {
         capabilities.set('nativeEvents', false);
         // capabilities.set('ie.forceCreateProcessApi', true);
         // capabilities.set('ie.browserCommandLineSwitches', '-private');
+
+        builder.withCapabilities(capabilities);
+    }
+
+    if (Config.headless) {
+        logger('running headless mode');
+        capabilities = Capabilities.chrome();
+        capabilities.set('chromeOptions', {args: ['--headless']});
 
         builder.withCapabilities(capabilities);
     }
