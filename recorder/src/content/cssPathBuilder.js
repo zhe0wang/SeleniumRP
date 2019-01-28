@@ -31,7 +31,7 @@
         while (!isUnique && parent !== null) {
             els = parent.querySelectorAll(currentCssPath);
             if (els.length > 1) {
-                nth = Array.prototype.indexOf.call(els, currentTarget);
+                nth = Array.prototype.indexOf.call(parent.children, currentTarget);
                 if (nth > -1) {
                     currentCssPath += ':nth-child(' + (nth + 1) + ')';
                 }
