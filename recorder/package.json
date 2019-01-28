@@ -3,8 +3,8 @@
   "version": "0.6.0",
   "description": "SeleniumRP recorder",
   "scripts": {
-    "dev": "./node_modules/.bin/webpack -w",
-    "build": "./node_modules/.bin/webpack"
+    "dev": "./node_modules/.bin/webpack -w --mode=development",
+    "build": "./node_modules/.bin/webpack --mode=production"
   },
   "dependencies": {
     "alertify.js": "1.0.12",

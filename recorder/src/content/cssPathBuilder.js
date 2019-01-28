@@ -12,7 +12,7 @@
         attrs = newAttrs;
     }
 
-    function builderCssPath(target) {
+    function build(target) {
         var currentTarget = target,
             currentCssPath = buildCssPath(currentTarget),
             cssPath,
@@ -57,6 +57,7 @@
         while(!isUnique && parent !== null) {
             cssPath = buildCssPath(parent);
             isUnique = isUniqueSelector(cssPath);
+            node = parent;
             parent = parent.parentNode;
         }
 
@@ -70,29 +71,17 @@
         var cssPath = '',
             pathBuilder,
             attr,
-            attrConfig,
-            attrValue,
-            matchValues,
             i,
             len = attrs.length;
 
         for (i = 0; i < len; i += 1) {
             attr = attrs[i];
-            attrValue = target[attr];
-            if (!attrValue) {
+            if (!target[attr]) {
                 continue;
             }
             
-            attrConfig = attrsConfig[attr];
-            pathBuilder = attrBuilderMap[attr];
-            if (pathBuilder) {
-                cssPath = pathBuilder(target, cssPath, attrConfig, parent);    
-            } else {
-                matchValues = matches(attrConfig, [attrValue]);
-                if (matchValues.length) {
-                    cssPath += '[' + attr + '="' + matchValues[0] +'"]';
-                }
-            }
+            pathBuilder = attrBuilderMap[attr] || buildAttrPath;
+            cssPath = pathBuilder(target, attr, cssPath, parent);
 
             if (isUniqueSelector(cssPath, parent)) {
                 return cssPath;
@@ -100,6 +89,66 @@
         }
 
         return cssPath;
+    }
+
+    function buildIdPath(target, attr, cssPath, parent) {
+        var id = target.id,            
+            attrConfig = attrsConfig[attr],
+            matchValues = matches(attrConfig, [id]);
+        if (!matchValues.length) {
+            return cssPath;
+        }
+
+        return cssPath + '#' + matchValues[0];
+    }
+
+    function buildTagPath(target, attr, cssPath, parent) {
+        var tagName = target.tagName,
+            attrConfig = attrsConfig[attr],
+            matchValues = matches(attrConfig, [tagName]);
+        if (!matchValues.length) {
+            return cssPath;
+        }
+
+        return matchValues[0] + cssPath;
+    }
+    
+    function buildClassPath (target, attr, cssPath, parent) {
+        var attrConfig = attrsConfig[attr],
+            matchValues = matches(attrConfig, Array.prototype.slice.call(target.classList));
+        if (!matchValues.length) {
+            return cssPath;            
+        }
+
+        matchValues.forEach((css) => {
+            cssPath += '.' + css;
+            if (isUniqueSelector(cssPath, parent)) {
+                return cssPath;
+            }
+        });
+
+        return cssPath;
+    }
+    
+    function buildAttrPath(target, attr, cssPath, parent) {
+        var attrValue = target[attr],
+            attrConfig = attrsConfig[attr],
+            matchValues = matches(attrConfig, [attrValue]);
+
+        if (matchValues.length) {
+            cssPath += '[' + attr + '="' + matchValues[0] +'"]';
+        }
+
+        return cssPath;
+    }
+
+    function isUniqueSelector(cssPath, parent) {
+        if (!cssPath) {
+            return false;
+        }
+
+        parent = parent || window.document;
+        return parent.querySelectorAll(cssPath).length === 1;
     }
 
     function matches(config, values) {
@@ -126,54 +175,9 @@
         return Object.keys(resultMap);
     }
 
-    function buildIdPath(target, cssPath, attrConfig, parent) {
-        var id = target.id,
-            matchValues = matches(attrConfig, [id]);
-        if (!matchValues.length) {
-            return cssPath;
-        }
-
-        return cssPath + '#' + matchValues[0];
-    }
-
-    function buildTagPath(target, cssPath, attrConfig, parent) {
-        var tagName = target.tagName,
-            matchValues = matches(attrConfig, [tagName]);
-        if (!matchValues.length) {
-            return cssPath;
-        }
-
-        return matchValues[0] + cssPath;
-    }
-    
-    function buildClassPath (target, cssPath, attrConfig, parent) {
-        var matchValues = matches(attrConfig, Array.prototype.slice.call(target.classList));
-        if (!matchValues.length) {
-            return cssPath;            
-        }
-
-        matchValues.forEach((css) => {
-            cssPath += '.' + css;
-            if (isUniqueSelector(cssPath, parent)) {
-                return cssPath;
-            }
-        });
-
-        return cssPath;
-    }    
-
-    function isUniqueSelector(cssPath, parent) {
-        if (!cssPath) {
-            return false;
-        }
-
-        parent = parent || window.document;
-        return parent.querySelectorAll(cssPath).length === 1;
-    }
-
     var cssPathBuilder = {
         updateAttrsConfig: updateAttrsConfig,
-        builderCssPath: builderCssPath
+        build: build
     };
 
     window.automEvents = window.automEvents || {};

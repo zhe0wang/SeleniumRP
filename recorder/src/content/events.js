@@ -348,7 +348,7 @@
         }
 
         eventTarget.position = getPosition(target);
-        eventTarget.cssPath = window.automEvents.cssPathBuilder.builderCssPath(target);
+        eventTarget.cssPath = window.automEvents.cssPathBuilder.build(target);
 
         return eventTarget;
     }
