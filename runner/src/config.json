@@ -25,5 +25,5 @@
     "closeOnFinish": true,
     "exclude": [],
     "batchSize": 0,
-    "headless": true
+    "headless": false
 }
