@@ -176,14 +176,12 @@
           });
           sendMessage({
             type: 'setsize',
-            sizes: {
-              width: window.innerWidth,
-              height: window.innerHeight
-            }
+            width: window.innerWidth,
+            height: window.innerHeight
           });
           sendMessage({
             type: 'url',
-            url: window.location.href
+            value: window.location.href
           });
         }
       }
@@ -439,7 +437,72 @@
 /***/ (function(module, exports) {
 
 (function () {
-  var isTextInput = function isTextInput(target) {
+  var events = {
+    mouseenter: {
+      condition: function condition(evt) {
+        return false;
+      }
+    },
+    dblclick: {
+      condition: function condition(evt) {
+        return !(evt.clientX === 0 && evt.clientY === 0 && evt.detail === 0);
+      }
+    },
+    click: {
+      condition: function condition(evt) {
+        return !(evt.clientX === 0 && evt.clientY === 0 && evt.detail === 0 && evt.target && evt.target.tagName.toUpperCase() !== 'SELECT');
+      }
+    },
+    keydown: {
+      props: [{
+        name: 'value',
+        fn: function fn(evt) {
+          return evt.keyCode;
+        }
+      }],
+      condition: function condition(evt) {
+        return evt.keyCode === 8 || evt.keyCode === 46 || evt.keyCode === 13;
+      }
+    },
+    keypress: {
+      props: [{
+        name: 'value',
+        fn: function fn(evt) {
+          return evt.keyCode;
+        }
+      }],
+      condition: function condition(evt) {
+        return !isTextInput(evt.target);
+      }
+    },
+    keyup: {
+      props: [{
+        name: 'value',
+        fn: function fn(evt) {
+          return evt.target.value;
+        }
+      }],
+      condition: function condition(evt) {
+        return isTextInput(evt.target) && evt.keyCode !== 13;
+      }
+    },
+    scroll: {
+      props: [{
+        name: 'left',
+        fn: function fn(evt) {
+          return evt.target.parentElement ? evt.target.scrollLeft : window.pageXOffset;
+        }
+      }, {
+        name: 'top',
+        fn: function fn(evt) {
+          return evt.target.parentElement ? evt.target.scrollTop : window.pageYOffset;
+        }
+      }]
+    },
+    contextmenu: {}
+  };
+
+  function isTextInput(target) {
     var tagName = target && target.tagName && target.tagName.toUpperCase();
 
     if (!tagName) {
@@ -447,74 +510,7 @@
     }
 
     return tagName === 'TEXTAREA' || tagName === 'INPUT';
-  },
-      events = {
-    mouseenter: {
-      condition: function condition(evt) {
-        return false;
-      }
-    },
-    dblclick: {
-      props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which'],
-      condition: function condition(evt) {
-        return !(evt.clientX === 0 && evt.clientY === 0 && evt.detail === 0);
-      }
-    },
-    click: {
-      props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which'],
-      condition: function condition(evt) {
-        return !(evt.clientX === 0 && evt.clientY === 0 && evt.detail === 0 && evt.target && evt.target.tagName.toUpperCase() !== 'SELECT');
-      }
-    },
-    keydown: {
-      props: ['key', 'keyCode', 'char', 'charCode', 'location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey'],
-      condition: function condition(evt) {
-        return evt.keyCode === 8 || evt.keyCode === 46 || evt.keyCode === 13;
-      }
-    },
-    keypress: {
-      props: ['key', 'keyCode',, 'location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey'],
-      condition: function condition(evt) {
-        return !isTextInput(evt.target);
-      }
-    },
-    keyup: {
-      props: ['key', 'keyCode', 'char', 'charCode', 'location', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey'],
-      condition: function condition(evt) {
-        return isTextInput(evt.target) && evt.keyCode !== 13;
-      }
-    },
-    scroll: {
-      props: ['detail', {
-        name: 'scroll',
-        fn: function scroll(evt) {
-          var target = evt.target,
-              noParent = !target.parentElement,
-              scrollLeft = !noParent ? target.scrollLeft : window.pageXOffset,
-              scrollTop = !noParent ? target.scrollTop : window.pageYOffset;
-          return {
-            left: scrollLeft,
-            top: scrollTop
-          };
-        }
-      }]
-    },
-    contextmenu: {
-      props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which'] // wheel: {
-      //     props: ['deltaX ', 'deltaY', 'deltaZ', 'deltaMode', 'altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which']
-      // }
-      // mousedown: {
-      //     props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which']
-      // },
-      // mousemove: {
-      //     props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which']
-      // },
-      // mouseup: {
-      //     props: ['altKey', 'button', 'buttons', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'which']
-      // }
-
-    }
-  };
+  }
 
   window.automEvents = window.automEvents || {};
   window.automEvents.eventConfig = events;
@@ -537,16 +533,14 @@
       recording,
       selectingType = null,
       selectTargetOverlay,
-      regionStart,
+      regionStart = {},
       isMouseDown = false,
       eventModule,
-      previousTime,
       updateStateHandler;
 
   function startListening(cb) {
     eventCb = cb;
     Object.keys(events).forEach(function (event) {
-      var eventConfig = events[event];
       window.addEventListener(event, onEvent, true);
     });
     window.addEventListener('mousemove', onSelectingMouseOver, true);
@@ -605,7 +599,6 @@
         position,
         targetBox,
         size,
-        borderColor,
         evtX = evt.clientX,
         evtY = evt.clientY;
 
@@ -662,7 +655,7 @@
   }
 
   function onSelectingMouseDown(evt) {
-    var overLay, eventMessage;
+    var eventMessage;
 
     if (!selectingType || !isInRange(evt)) {
       return;
@@ -704,8 +697,8 @@
       sendEventMessage({
         message: {
           type: 'screenshot',
-          x: Math.min(regionStart.x, evt.clientX) - 1,
-          y: Math.min(regionStart.y, evt.clientY) - 1,
+          left: Math.min(regionStart.x, evt.clientX) - 1,
+          top: Math.min(regionStart.y, evt.clientY) - 1,
           width: Math.abs(regionStart.x - evt.clientX) + 2,
           height: Math.abs(regionStart.y - evt.clientY) + 2
         }
@@ -813,29 +806,27 @@
   }
 
   function getVerifyTargetMessage(evt) {
-    var type = 'verify',
-        target = getEventTarget(evt.target, true);
     return {
-      type: type,
-      timeDiff: getTimeDiff(),
-      target: target
+      type: 'verify',
+      cssPath: window.automEvents.cssPathBuilder.build(evt.target),
+      value: evt.target.textContent
     };
   }
 
   function getEventMessage(evt) {
     var type = evt.type,
         message = {
-      type: type
+      type: type,
+      cssPath: window.automEvents.cssPathBuilder.build(evt.target)
     },
-        eventConfig = events[type],
-        target = getEventTarget(evt.target);
+        eventConfig = events[type];
 
     if (eventConfig) {
       if (eventConfig.condition && !eventConfig.condition(evt)) {
         return;
       }
 
-      eventConfig.props.forEach(function (prop) {
+      eventConfig.props && eventConfig.props.forEach(function (prop) {
         var isPropFunc = prop.name && prop.fn,
             propName = isPropFunc ? prop.name : prop,
             propValue = isPropFunc ? prop.fn(evt) : evt[prop];
@@ -846,59 +837,7 @@
       });
     }
 
-    if (target) {
-      message.target = target;
-    }
-
-    message.timeDiff = getTimeDiff();
     return message;
-  }
-
-  function getTimeDiff() {
-    var diff = 0;
-
-    if (!previousTime) {
-      previousTime = new Date().getTime();
-    } else {
-      diff = new Date().getTime() - previousTime;
-      previousTime += diff;
-    }
-
-    return diff;
-  }
-
-  function getEventTarget(target, includeText) {
-    var props = attrs.concat(['textContent', 'value']),
-        eventTarget = {};
-
-    if (!target) {
-      return null;
-    }
-
-    if (target === document) {
-      eventTarget.cssPath = 'body';
-      return eventTarget;
-    }
-
-    props.forEach(function (prop) {
-      addProp(target, prop, eventTarget);
-    });
-
-    if (eventTarget.textContent) {
-      eventTarget.textContent = eventTarget.textContent.replace(/\r|\n/g, '').substring(0, 100);
-    }
-
-    eventTarget.position = getPosition(target);
-    eventTarget.cssPath = window.automEvents.cssPathBuilder.build(target);
-    return eventTarget;
-  }
-
-  function addProp(source, key, dest) {
-    var value = source[key];
-
-    if (value && value.length) {
-      dest[key] = value;
-    }
   }
 
   function getPosition(el) {

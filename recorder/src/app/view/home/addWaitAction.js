@@ -12,13 +12,11 @@ function reducerCreator(wait) {
 
         clientAction = {
             type: 'wait',
-            value: wait,
-            id: shortid.generate()
+            value: wait
         };
         
         return Action.update(state, {
-            clientActions: { $push: [clientAction] },
-            lastActionTimeStamp: { $set: new Date().getTime() }
+            clientActions: { $push: [clientAction] }
         });
     }
 }

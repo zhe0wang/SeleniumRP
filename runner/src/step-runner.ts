@@ -154,10 +154,8 @@ async function doCheckError() {
 }
 
 async function doSetSize(action) {
-	let sizes = action.sizes;
-
-	log(`set size to: w-${sizes.width}, h-${sizes.height}`, null, errorCount);
-	await DriverWrapper.setWindowSize(sizes);
+	log(`set size to: w-${action.width}, h-${action.height}`, null, errorCount);
+	await DriverWrapper.setWindowSize(action);
 }
 
 async function doWait(action) {
@@ -170,9 +168,9 @@ async function goToUrl(action) {
 		return;
 	}
 
-	currentUrl = Config.startUrl || action.url;
+	currentUrl = Config.startUrl || action.value;
 	log(currentUrl, null, errorCount);
-	await DriverWrapper.goToUrl(action.url);
+	await DriverWrapper.goToUrl(action.value);
 }
 
 async function doClick(action) {
@@ -184,51 +182,51 @@ async function doDblClick(action) {
 }
 
 async function doClickAction(action, isDoubleClick = false) {
-	log(`${!isDoubleClick ? 'click' : 'double click'}:  ${action.target.cssPath}`, null, errorCount);
+	log(`${!isDoubleClick ? 'click' : 'double click'}:  ${action.cssPath}`, null, errorCount);
 
-	await DriverWrapper.click(action.target, isDoubleClick);
+	await DriverWrapper.click(action.cssPath, isDoubleClick);
 }
 
 async function doContextMenu(action) {
-	let	x = action.clientX,
-		y = action.clientY;
-
-	log(`contextmenu:  ${x}, ${y}`, null, errorCount);
-	await DriverWrapper.contextClick(action.target, x, y);
+	log(`contextmenu`, null, errorCount);
+	await DriverWrapper.contextClick(action.cssPath);
 }
 
 async function doKey(action) {
-	let keyCode = action.keyCode,
-		key = KeyMap[action.keyCode] || String.fromCharCode(action.keyCode);
+	let keyCode = action.value,
+		key = KeyMap[keyCode] || String.fromCharCode(keyCode);
 
 	log(`key:  ${key} : ${keyCode}`, null, errorCount);
-	await DriverWrapper.sendKeys(action.target, key);
+	await DriverWrapper.sendKeys(action.cssPath, key);
 }
 
 async function doKeyUp(action) {
-	let value = action.target && action.target.value;
+	let value = action.value;
 	if (value === null || value === undefined) {
 		await doKey(action);
 		return;
 	}
 
 	log(`set value:  ${value}`, null, errorCount);
-	await DriverWrapper.sendKeys(action.target, value);
+	await DriverWrapper.sendKeys(action.cssPath, value);
 }
 
 async function doScroll(action) {
-	log(`scroll: ${action.scroll.left} ${action.scroll.top}`, null, errorCount);
+	log(`scroll: ${action.left} ${action.top}`, null, errorCount);
 
-	await DriverWrapper.scroll(action.target, action.scroll);
+	await DriverWrapper.scroll(action.cssPath, {
+		left: action.left,
+		top: action.top
+	});
 }
 
 async function doVerify(action) {
-	let text = (action.target || {}).textContent,
-		verifyMessage = `verify - "${text || action.id}"`,
+	let text = action.value,
+		verifyMessage = `verify - "${text}"`,
 		result;
 
 	log(verifyMessage, null, errorCount);
-	result = await DriverWrapper.verify(action.target, text);
+	result = await DriverWrapper.verify(action.cssPath, text);
 	log(verifyMessage, !result ? 'error' : 'success');
 	updateResult(verifyMessage, result);
 }
@@ -246,8 +244,7 @@ async function createErrorScreenshot(action) {
 	await resetMouse();
 	let imgStr = await DriverWrapper.screenshot();
 	let data = await Pixel.getImgData(imgStr);
-	let dim = action && action.target && action.target.position;
-	data = Pixel.highlight(dim, data, [255, 0, 0]);
+	data = Pixel.highlight(action, data, [255, 0, 0]);
 	fse.ensureDirSync(errorFolder);	
 	fs.writeFileSync(errorFile, data, 'base64');
 }

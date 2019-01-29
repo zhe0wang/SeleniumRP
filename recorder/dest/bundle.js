@@ -32881,15 +32881,11 @@ function reducerCreator(wait) {
 
     clientAction = {
       type: 'wait',
-      value: wait,
-      id: shortid__WEBPACK_IMPORTED_MODULE_1___default.a.generate()
+      value: wait
     };
     return _action_js__WEBPACK_IMPORTED_MODULE_0__["default"].update(state, {
       clientActions: {
         $push: [clientAction]
-      },
-      lastActionTimeStamp: {
-        $set: new Date().getTime()
       }
     });
   };
@@ -33228,19 +33224,10 @@ function reducerCreator(eventId) {
         idx = actions.findIndex(function (event) {
       return event.id === eventId;
     }),
-        currentSavedSteps,
-        timeDiff,
-        nextAction;
+        currentSavedSteps;
 
     if (idx < 0) {
       return null;
-    }
-
-    timeDiff = actions[idx].timeDiff;
-    nextAction = actions[idx + 1];
-
-    if (nextAction) {
-      nextAction.timeDiff += timeDiff;
     }
 
     actions.splice(idx, 1);
@@ -33845,9 +33832,6 @@ var Pager = function Pager(_ref) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _action_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../action.js */ "./app/action.js");
-/* harmony import */ var shortid__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! shortid */ "../node_modules/shortid/index.js");
-/* harmony import */ var shortid__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(shortid__WEBPACK_IMPORTED_MODULE_1__);
-
 
 var SaveClientEventAction = new _action_js__WEBPACK_IMPORTED_MODULE_0__["default"].Subject();
 var actionTypeMap = {
@@ -33857,17 +33841,7 @@ var actionTypeMap = {
 };
 
 function isSameTarget(action1, action2) {
-  var target1, target2;
-
-  if (!action1 || !action2) {
-    return false;
-  }
-
-  target1 = Object.assign({}, action1.target);
-  delete target1.value;
-  target2 = Object.assign({}, action2.target);
-  delete target2.value;
-  return JSON.stringify(target1) === JSON.stringify(target2);
+  return action1.cssPath === action2.cssPath;
 }
 
 function getDblClickClientActions(actions, action) {
@@ -33934,18 +33908,7 @@ function reducerCreator(clientAction) {
     var screenIndex, currentActions, updateState;
 
     if (clientAction && clientAction.type && state.isRecording) {
-      clientAction.id = shortid__WEBPACK_IMPORTED_MODULE_1___default.a.generate();
-
-      if (clientAction.timeDiff === undefined) {
-        clientAction.timeDiff = new Date().getTime() - state.lastActionTimeStamp;
-      }
-
       currentActions = state.clientActions;
-
-      if (!currentActions || !currentActions.length) {
-        clientAction.timeDiff = 0;
-      }
-
       screenIndex = clientAction.screenIndex || state.screenIndex;
 
       if (clientAction.type === 'screenshot' && !(clientAction.screenIndex >= 0)) {
@@ -33954,9 +33917,6 @@ function reducerCreator(clientAction) {
       }
 
       updateState = {
-        lastActionTimeStamp: {
-          $set: new Date().getTime()
-        },
         screenIndex: {
           $set: screenIndex
         }

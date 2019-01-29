@@ -7,20 +7,12 @@ function reducerCreator(eventId) {
         var selectedStep = state.selectedStep,
             actions = (selectedStep ? state.savedSteps[selectedStep].actions : state.clientActions).slice(),
             idx = actions.findIndex((event) => event.id === eventId),
-            currentSavedSteps,
-            timeDiff,
-            nextAction;
+            currentSavedSteps;
 
         if (idx < 0) {
             return null;
         }
-
-        timeDiff = actions[idx].timeDiff;
-        nextAction = actions[idx + 1];
-        if (nextAction) {
-            nextAction.timeDiff += timeDiff;
-        }
-
+        
         actions.splice(idx, 1);
 
         if (!selectedStep) {

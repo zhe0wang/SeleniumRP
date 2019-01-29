@@ -1,5 +1,4 @@
 import Action from '../../action.js';
-import shortid from 'shortid';
 
 var SaveClientEventAction = new Action.Subject();
 var actionTypeMap = {
@@ -9,19 +8,7 @@ var actionTypeMap = {
     };
 
 function isSameTarget(action1, action2) {
-    var target1,
-        target2;
-
-    if (!action1 || !action2) {
-        return false;
-    }
-
-    target1 = Object.assign({}, action1.target);
-    delete target1.value;
-    target2 = Object.assign({}, action2.target);
-    delete target2.value;
-
-    return JSON.stringify(target1) === JSON.stringify(target2);
+    return action1.cssPath === action2.cssPath;
 }
 
 function getDblClickClientActions (actions, action) {
@@ -85,17 +72,7 @@ function reducerCreator(clientAction) {
             updateState;
 
         if (clientAction && clientAction.type && state.isRecording) {
-            clientAction.id = shortid.generate();
-
-            if (clientAction.timeDiff === undefined) {
-                clientAction.timeDiff = new Date().getTime() - state.lastActionTimeStamp;
-            }
-
             currentActions = state.clientActions;
-            if (!currentActions || !currentActions.length) {
-                clientAction.timeDiff = 0;
-            }
-
             screenIndex = clientAction.screenIndex || state.screenIndex
             if (clientAction.type === 'screenshot' && !(clientAction.screenIndex >= 0)) {
                 screenIndex += 1;
@@ -103,7 +80,6 @@ function reducerCreator(clientAction) {
             }
 
             updateState = {
-                lastActionTimeStamp: { $set: new Date().getTime() },
                 screenIndex: {$set: screenIndex}
             };
 

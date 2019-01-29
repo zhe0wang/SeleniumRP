@@ -5,10 +5,10 @@ async function getImgData(imgStr, dimensions?) {
         png,
         regionPng;
 
-    if (dimensions && dimensions.x >= 0 && dimensions.y >= 0 && dimensions.width && dimensions.height) {
+    if (dimensions && dimensions.left >= 0 && dimensions.top >= 0 && dimensions.width && dimensions.height) {
         png = PNG.sync.read(new Buffer(base64Data, 'base64'));
         regionPng = new PNG({ width: dimensions.width, height: dimensions.height });
-        PNG.bitblt(png, regionPng, dimensions.x, dimensions.y, dimensions.width, dimensions.height, 0, 0);
+        PNG.bitblt(png, regionPng, dimensions.left, dimensions.top, dimensions.width, dimensions.height, 0, 0);
         base64Data = PNG.sync.write(regionPng).toString('base64');
     }
 
@@ -20,18 +20,18 @@ function highlight(dimensions, data, color) {
 		targetHeight,
 		targetWidth,
 		idx,
-		isValid = dimensions && dimensions.x >= 0  && dimensions.y >= 0 && dimensions.width && dimensions.height;
+		isValid = dimensions && dimensions.left >= 0  && dimensions.top >= 0 && dimensions.width && dimensions.height;
 	
 	if (!isValid) {
 		return data;
 	}
 
 	png = PNG.sync.read(new Buffer(data, 'base64'));
-	targetHeight = Math.min(dimensions.y + dimensions.height, png.height);
-	targetWidth = Math.min(dimensions.x +  dimensions.width, png.width);
-	for (let y = dimensions.y; y < targetHeight; y += 1) {
-		for (let x = dimensions.x; x < targetWidth; x += 1) {
-			if (y > dimensions.y && y < targetHeight - 1 && x > dimensions.x && x < targetWidth - 1) {
+	targetHeight = Math.min(dimensions.top + dimensions.height, png.height);
+	targetWidth = Math.min(dimensions.left +  dimensions.width, png.width);
+	for (let y = dimensions.top; y < targetHeight; y += 1) {
+		for (let x = dimensions.left; x < targetWidth; x += 1) {
+			if (y > dimensions.top && y < targetHeight - 1 && x > dimensions.left && x < targetWidth - 1) {
 				continue;
 			}
 

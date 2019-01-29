@@ -85,8 +85,8 @@ async function goToUrl(url) {
     await driver.get(url);
 }
 
-async function click(target, isDoubleClick = false) {
-    let el = await getEl(target);
+async function click(cssPath, isDoubleClick = false) {
+    let el = await getEl(cssPath);
     if (!isDoubleClick) {
         await el.click(el);
     } else {
@@ -94,24 +94,24 @@ async function click(target, isDoubleClick = false) {
     }
 }
 
-async function contextClick(target, x, y) {
-    let el = await getEl(target);
+async function contextClick(cssPath) {
+    let el = await getEl(cssPath);
     await driver.actions()
         .contextClick(el, 2)
         .perform();
 }
 
-async function getEl(target) {
-    return await driver.findElement(By.css(target.cssPath));
+async function getEl(cssPath) {
+    return await driver.findElement(By.css(cssPath));
 }
 
-async function sendKeys(target, keys) {
-    let el = await getEl(target);
+async function sendKeys(cssPath, keys) {
+    let el = await getEl(cssPath);
     await el.sendKeys(keys);
 }
 
-async function scroll(target, scrollOffset) {
-    let el = await getEl(target);
+async function scroll(cssPath, scrollOffset) {
+    let el = await getEl(cssPath);
 
     await driver.executeScript(function () {
         let args = arguments[arguments.length - 1],
@@ -128,8 +128,8 @@ async function scroll(target, scrollOffset) {
     }, [el, scrollOffset]);
 }
 
-async function verify(target, text) {
-    let el = await getEl(target);
+async function verify(cssPath, text) {
+    let el = await getEl(cssPath);
     if (!el) {
         return false;
     }

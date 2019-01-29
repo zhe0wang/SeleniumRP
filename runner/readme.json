@@ -1,0 +1,37 @@
+[{
+    "type": "setsize",
+    "width": 0,
+    "height": 0
+}, {
+    "type": "wait",
+    "value": 0
+}, {
+    "type": "url",
+    "cssPath": "cssPath",
+    "value": "url"
+}, {
+    "type": "click/dblclick",
+    "cssPath": "cssPath"
+}, {
+    "type": "verify",
+    "cssPath": "cssPath",
+    "value": "some value"
+}, {
+    "type": "screenshot",
+    "left?": 0,
+    "top?": 0,
+    "width?": 0,
+    "height?": 0
+}, {
+    "type": "scroll",
+    "cssPath": "cssPath",
+    "left": 0,
+    "top": 0
+}, {
+    "type": "keyup/keydown/keypress",
+    "cssPath": "cssPath",
+    "value": "some value"
+}, {
+    "type": "contextmenu",
+    "cssPath": "cssPath"
+}]

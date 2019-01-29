@@ -1,7 +1,7 @@
 (function () {
     var state = {
-            recording: false
-        },
+        recording: false
+    },
         actions = {
             start: startAction,
             stop: stopAction,
@@ -37,7 +37,7 @@
 
     function updateState(config) {
         state[config.key] = config.value;
-        if(config.key === 'isPartialScreenshot' && !config.value && state.selectingType === 'region') {
+        if (config.key === 'isPartialScreenshot' && !config.value && state.selectingType === 'region') {
             screenshot();
         }
     }
@@ -77,14 +77,12 @@
                     });
                     sendMessage({
                         type: 'setsize',
-                        sizes: {
-                            width: window.innerWidth,
-                            height: window.innerHeight
-                        }
+                        width: window.innerWidth,
+                        height: window.innerHeight
                     });
                     sendMessage({
                         type: 'url',
-                        url: window.location.href
+                        value: window.location.href
                     });
                 }
             }
