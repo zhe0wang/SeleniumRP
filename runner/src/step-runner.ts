@@ -24,6 +24,7 @@ let channel,
 		setsize: doSetSize
 	},
 	currentUrl,
+	currentSizes,
 	currentTestName,
 	currentTestResult = true,
 	currentStep,
@@ -155,6 +156,7 @@ async function doCheckError() {
 
 async function doSetSize(action) {
 	log(`set size to: w-${action.width}, h-${action.height}`, null, errorCount);
+	currentSizes = {width: action.width, height: action.height};
 	await DriverWrapper.setWindowSize(action);
 }
 
@@ -241,18 +243,18 @@ async function createErrorScreenshot(action) {
 		errorFolder = `${Config.screenErrorFolder}/${currentTestName}/${currentStep.name}/`,
 		errorFile = `${errorFolder}${fileName}`;
 
-	await resetMouse();
+	// await resetMouse();
 	let imgStr = await DriverWrapper.screenshot();
 	let data = await Pixel.getImgData(imgStr);
-	data = Pixel.highlight(action, data, [255, 0, 0]);
+	data = Pixel.highlight(action, data, [255, 0, 0], currentSizes);
 	fse.ensureDirSync(errorFolder);	
 	fs.writeFileSync(errorFile, data, 'base64');
 }
 
 async function doScreenShot(action) {
-	await resetMouse();
+	// await resetMouse();
 	let imgStr = await DriverWrapper.screenshot();
-	let data = await Pixel.getImgData(imgStr, action);
+	let data = await Pixel.getImgData(imgStr, action, currentSizes);
 	await compareImages(action, data);
 }
 

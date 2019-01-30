@@ -100,14 +100,12 @@ function runParallel() {
 }
 
 function createChildProcess(idx) {
-	let test = tests[idx],
-		child
-
+	let test = tests[idx];
 	if (!test) {
 		return;
 	}
 
-	child = fork('./testRunner.js', [test]);
+	let child = fork('./testRunner.js', [test]);
 	child.on('message', channel);
 
 	child.on('exit', function (exitCode) {
@@ -129,9 +127,7 @@ function channel(message) {
 	let logAction = Logger[message.type],
 		hasStep = message.stepName,
 		test = results.tests.find((test) => test.name === message.testName),
-		prefix,
-		step,
-		receiver;
+		step;
 
 	if (!test) {
 		test = {
@@ -155,7 +151,7 @@ function channel(message) {
 		}
 	}
 
-	prefix = `${message.testName || ''} - ${message.stepName || ''}: `;
+	let prefix = `${message.testName || ''} - ${message.stepName || ''}: `;
 	if (logAction) {
 		logAction(prefix + message.content, message.isForce);
 	} else if (message.type === 'result' && (message.result === true || message.result === false)) {
@@ -166,7 +162,7 @@ function channel(message) {
 		}
 	}
 
-	receiver = hasStep ? step : test;
+	let receiver = hasStep ? step : test;
 	if (message.type !== 'result') {
 		receiver.logs.push(message);	
 	} else {

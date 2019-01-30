@@ -147,7 +147,7 @@ async function resetMouse() {
 }
 
 async function screenshot() {
-    return await driver.takeScreenshot()
+    return await driver.takeScreenshot();
 }
 
 async function close() {
