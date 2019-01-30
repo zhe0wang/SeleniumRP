@@ -1,6 +1,5 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
-const nodeEnv = process.env.NODE_ENV || 'development';
 
 var nodeModules = {
     './config.json': 'commonjs ./config.json'
@@ -21,18 +20,6 @@ var plugins = [
     //     'process.env': { NODE_ENV: JSON.stringify(nodeEnv) }
     // })
 ];
-
-// isProd && plugins.push(new webpack.optimize.UglifyJsPlugin({
-//         compress: {
-//             warnings: false
-//         },
-//         output: {
-//             comments: false
-//         },
-//         sourceMap: false
-// }));
-
-console.log(nodeEnv);
 
 module.exports = {
     //devtool: isProd ? 'hidden-source-map' : 'source-map',
