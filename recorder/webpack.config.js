@@ -39,8 +39,6 @@ if (isProd) {
     }));
 }
 
-console.log(nodeEnv);
-
 module.exports = {
     devtool: isProd ? 'hidden-source-map' : 'source-map',
     context: path.join(__dirname, './src'),
