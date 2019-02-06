@@ -20,7 +20,7 @@
         "wait": 0
     },
     "wait": {
-        "all": null
+        "all": 200
     },
     "closeOnFinish": true,
     "exclude": [],
