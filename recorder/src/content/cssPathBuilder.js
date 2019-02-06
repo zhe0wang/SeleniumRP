@@ -46,7 +46,9 @@
             parent = currentTarget.parentNode;
         }
 
-        return uniqueParent ? uniqueParent.cssPath + ' ' + cssPath : cssPath;
+        css = uniqueParent ? uniqueParent.cssPath + ' ' + cssPath : cssPath;
+
+        return !isUniqueSelector(css) ? false : css;
     }
     
     function getUniqueParent(node) {
@@ -73,6 +75,10 @@
             attr,
             i,
             len = attrs.length;
+
+        if (target === document) {
+            return '#document';
+        }
 
         for (i = 0; i < len; i += 1) {
             attr = attrs[i];
@@ -143,6 +149,10 @@
     }
 
     function isUniqueSelector(cssPath, parent) {
+        if (cssPath === '#document') {
+            return true;
+        }
+
         if (!cssPath) {
             return false;
         }

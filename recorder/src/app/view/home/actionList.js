@@ -48,11 +48,11 @@ const ActionList = ({appState}) => {
                 <div className={className}>
                     {rows.map((row) =>
                     {
-                        var cssPath = row.target && row.target.cssPath;
+                        var cssPath = row.cssPath;
                         var rowTitle = row.type + (cssPath ? ' - ' + cssPath : '');
-                        return (<div className='i-event-row' key={row.id}>
+                        return (<div className='i-event-row' key={row.id} onClick={() => {highlightElement(cssPath)}}>
                                     <div className='i-event-item-remove' onClick={() => { RemoveClientEventAction.next(row.id) } }>&#10006;</div>
-                                    {!toShowDetail ? <div className='i-event-item truncate-200' title ={rowTitle} onClick={() => {highlightElement(cssPath)}}>{rowTitle}</div> : <div className='i-event-item'>{JSON.stringify(row, null, 2)}</div>}
+                                    {!toShowDetail ? <div className='i-event-item truncate-200' title ={rowTitle}>{rowTitle}</div> : <div className='i-event-item'>{JSON.stringify(row, null, 2)}</div>}
                                 </div>);
                     })}
                 </div>

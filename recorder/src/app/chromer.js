@@ -2,6 +2,7 @@ import Constants from './constants.js';
 import Notifier from './notifier.js';
 import SaveClientEventAction from './view/share/saveClientEventAction.js';
 import ToggleStartAction from './view/home/toggleStartAction.js';
+import Utility from './Utility.js';
 
 const commandMap = {
     'screenshot': onScreenShot,
@@ -73,6 +74,11 @@ function handlChannelMessage(message) {
 
     if (message.notify) {
         Notifier.next(message);
+        return;
+    }
+
+    if (message.cssPath === false) {
+        Utility.logError("Cannot generate a valid CssPath");
         return;
     }
 
