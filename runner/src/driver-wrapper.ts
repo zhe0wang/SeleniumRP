@@ -121,6 +121,10 @@ async function contextClick(cssPath) {
 }
 
 async function getEl(cssPath) {
+    if (cssPath === '#document') {
+        return driver.findElement(By.css('body'));
+    }
+
     return await driver.findElement(By.css(cssPath));
 }
 
@@ -130,12 +134,11 @@ async function sendKeys(cssPath, keys) {
 }
 
 async function scroll(cssPath, scrollOffset) {
-    let el = await getEl(cssPath);
-
     await driver.executeScript(function () {
         let args = arguments[arguments.length - 1],
-            el = args[0],
-            scrollOffset = args[1];
+            css = args[0],
+            scrollOffset = args[1],
+            el = css === '#document' ? document.scrollingElement : document.querySelector(css);
 
         if (scrollOffset.left) {
             el.scrollLeft = scrollOffset.left;
@@ -144,7 +147,7 @@ async function scroll(cssPath, scrollOffset) {
         if (scrollOffset.top) {
             el.scrollTop = scrollOffset.top;
         }
-    }, [el, scrollOffset]);
+    }, [cssPath, scrollOffset]);
 }
 
 async function verify(cssPath, text) {
