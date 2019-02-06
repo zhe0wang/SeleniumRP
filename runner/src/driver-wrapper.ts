@@ -87,11 +87,30 @@ async function goToUrl(url) {
 
 async function click(cssPath, isDoubleClick = false) {
     let el = await getEl(cssPath);
-    if (!isDoubleClick) {
-        await el.click(el);
-    } else {
-        await el.doubleClick(el);
+    try {
+        if (!isDoubleClick) {
+            await el.click();
+        } else {
+            await el.doubleClick();
+        }
+    } catch {
+        domClick(el, isDoubleClick);
     }
+}
+
+function domClick(cssPath, isDoubleClick) {
+    driver.executeScript(() => {
+        let args = arguments[arguments.length - 1],
+            el = args[0],
+            isDbl = args[1];
+
+        if (!isDbl) {
+            var event = new Event(!isDbl ? 'click': 'dblclick', {"bubbles":true, "cancelable":true});
+            el.dispatchEvent(event);
+        } else {
+            el.doubleClick();
+        }
+    }, [cssPath, isDoubleClick]);
 }
 
 async function contextClick(cssPath) {
